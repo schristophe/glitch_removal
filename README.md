@@ -16,8 +16,10 @@ cd glitch_removal
 
 `glitch_removal` is developed in Python 3.6. The following packages are required:
 * `numpy`
+* `scipy`
 * `matplotlib`
 * [`emcee`](https://emcee.readthedocs.io/)
+* [`corner.py`](https://corner.readthedocs.io/)
 
 
 ## Quickstart
@@ -26,30 +28,40 @@ cd glitch_removal
 import glitch_removal as gr
 ```
 
-Load a frequency set from a file located at path:
+* Load a frequency set from a file located at path:
  ```python
  star = gr.FreqTable(path)
  star.load()
  ```
 The program assumes the file has the following format by default: (angular degree l, radial order n, frequencies, uncertainties).  
  
-Compute seismic indicators (second differences or frequency ratios):
+* Compute seismic indicators (second differences or frequency ratios):
 ```python
 star.calc_d2nu()
 star.calc_ratios()
 ```
 
-Plot the results:
+* Plot the results:
 ```python
 star.d2nutable.plot()
 star.rr010table.plot()
 star.r02table.plot()
 ```
 
-Initiate a glitch model to represent a given seismic indicator, e.g.:
+* Initiate a glitch model to represent a given seismic indicator, e.g.:
 ```python
 model = gr.GlitchModel(model_name,star.rr010table)
+```
 
+* Determine plausible initial values for the parameters and run the MCMC sampling with `emcee`: 
+```python
+model.initial_guess()
+model.run_mcmc()
+```
+
+* Save the log file containing the summary of the results and some figures (corner plot, evolution of the walkers, comparison with observed data points):
+```python
+model.log_and_plot()
 ```
 
 ## Citing
