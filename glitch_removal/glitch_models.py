@@ -984,11 +984,11 @@ def update_params(model,data):
         emcee_params["ndim"] = 9
     # Check if star_params are consistent with data
     # numax
-    if star_params["numax"] >= data.freq.max() or \
-            star_params["numax"] <= data.freq.min():
-        star_params["numax"] = 0.5*(data.freq.max()+data.freq.min())
-        print(f"""Warning: numax in the star_params dictionary is outside the
-                interval of observed frequencies. numax has been set to
+    numax_backup = np.median(data.freq)
+    if not (0.9*numax_backup <= star_params["numax"] <= 1.1*numax_backup):
+        star_params["numax"] = numax_backup
+        print(f"""Warning: numax in the star_params dictionary is more than 10%
+                off the median mode frequency. numax has been set to
                 {star_params["numax"]}. Please consider updating it to the
                 right value in params.py""")
     # delta_nu
@@ -998,8 +998,8 @@ def update_params(model,data):
                 np.median(np.abs(np.sort(data.freq[data.l == l][1:])-\
                 np.sort(data.freq[data.l==l][:-1])))
     delta_nu_backup = delta_nu_backup / (data.l.max() - data.l.min() + 1)
-    star_params["delta_nu"] = delta_nu_backup
-    if 0.9*delta_nu_backup <= star_params["delta_nu"] <= 1.1*delta_nu_backup:
+    if not (0.9*delta_nu_backup <= star_params["delta_nu"] <= 1.1*delta_nu_backup):
+        star_params["delta_nu"] = delta_nu_backup
         print(f"""Warning: delta_nu in the star_params dictionary is more
                 than 10% off the mean large separation computed from the
                 frequency set. delta_nu has been set to
