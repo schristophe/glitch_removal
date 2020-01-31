@@ -148,7 +148,7 @@ class GlitchModel(object):
         if self.model == d2nu_verma:
             model_name = 'd2nu_verma'
             # Log file
-            logfile = open(model_name+'.log',"w")
+            logfile = open(save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
                     'a0 + a1*freq +' +\
@@ -267,7 +267,7 @@ class GlitchModel(object):
         elif self.model == d2nu_basu:
             model_name = 'd2nu_basu'
             # Log file
-            logfile = open(model_name+'.log',"w")
+            logfile = open(save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
                     'a1 + a2*freq + a3/freq**2 + ' +\
@@ -403,7 +403,7 @@ class GlitchModel(object):
         elif self.model == rr010_const_amp:
             model_name = 'rr010_const_amp'
             # Log file
-            logfile = open(model_name+'.log',"w")
+            logfile = open(save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
                     'c0 + c1*freq + c2*freq**2 + ' +\
@@ -496,7 +496,7 @@ class GlitchModel(object):
         elif self.model == rr010_freqinv_amp:
             model_name = 'rr010_freqinv_amp'
             # Log file
-            logfile = open(model_name+'.log',"w")
+            logfile = open(save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
                     'c0 + c1*freq + c2*freq**2 + ' +\
@@ -590,7 +590,7 @@ class GlitchModel(object):
         elif self.model == rr010_freqinvsq_amp:
             model_name = 'rr010_freqinvsq_amp'
             # Log file
-            logfile = open(model_name+'.log',"w")
+            logfile = open(save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
                     'c0 + c1*freq + c2*freq**2 + ' +\
@@ -684,7 +684,7 @@ class GlitchModel(object):
         elif self.model == rr010_freqinvpoly_amp:
             model_name = 'rr010_freqinvpoly_amp'
             # Log file
-            logfile = open(model_name+'.log',"w")
+            logfile = open(save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
                     'c0 + c1*freq + c2*freq**2 + ' +\
@@ -787,7 +787,7 @@ class GlitchModel(object):
         elif self.model == rr010_freqinvsq_amp_polyper:
             model_name = 'rr010_freqinvsq_amp_polyper'
             # Log file
-            logfile = open(model_name+'.log',"w")
+            logfile = open(save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
                     'c0 + c1*freq + c2*freq**2 + ' +\
@@ -904,9 +904,9 @@ class GlitchModel(object):
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
             ax2 = fig_result.add_subplot(gs[2,0])
-        fig_corner.savefig('corner.png')
-        fig_walkers.savefig('walkers.png')
-        fig_result.savefig('result.png')
+        fig_corner.savefig(save_params["nameplate"]+'_'+'corner.png')
+        fig_walkers.savefig(save_params["nameplate"]+'_'+'walkers.png')
+        fig_result.savefig(save_params["nameplate"]+'_'+'result.png')
 
 
 # List of models to represent glitches in different seismic indicators

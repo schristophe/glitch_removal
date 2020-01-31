@@ -20,3 +20,8 @@ fit_params = {
 "freqref": 0.8*star_params["numax"],
 "nsvd" : 19
 }
+
+########  Saving options #############
+save_params = {
+"nameplate": '8938364'    # all saved files will begin by the value of nameplate
+}
