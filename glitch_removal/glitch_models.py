@@ -95,10 +95,10 @@ class GlitchModel(object):
             res_osc = self.data.rr010 - np.polyval(c_init, self.data.freq)
             T_random_0 = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
             T_random_1 = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
-            ig0 = [c_init[2],c_init[1],c_init[0],res_osc.max(),T_random_0,res_osc.max(),np.pi,0.1*res_osc.max(),T_random_1,np.pi]
-            self.bds = ((c_init[2]-3*sig_c_init[2],c_init[2]+3*sig_c_init[2])\
-                    (c_init[1]-3*sig_c_init[1],c_init[1]+3*sig_c_init[1])\
-                    (c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0])\
+            ig0 = [c_init[2],c_init[1],c_init[0],res_osc.max(),T_random_0,np.pi,0.1*res_osc.max(),T_random_1,np.pi]
+            self.bds = ((c_init[2]-3*sig_c_init[2],c_init[2]+3*sig_c_init[2]),\
+                    (c_init[1]-3*sig_c_init[1],c_init[1]+3*sig_c_init[1]),\
+                    (c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
                     (0,3*res_osc.max()),\
                     (T_min,T0-T_min),\
                     (-np.pi,4*np.pi),\
@@ -124,7 +124,7 @@ class GlitchModel(object):
         # elif self.model == d2nu_houdek:
         #     sampler.chain[:,:,[]] = np.mod(sampler.chain[:,:,[]],2*np.pi)
         elif self.model == rr010_const_amp or self.model == rr010_freqinv_amp or \
-                model == rr010_freqinvsq_amp:
+                self.model == rr010_freqinvsq_amp:
             sampler.chain[:,:,5] = np.mod(sampler.chain[:,:,5],2*np.pi)
             sampler.chain[:,:,4] = 1e6 * sampler.chain[:,:,4]
         elif self.model == rr010_freqinvpoly_amp:
@@ -779,7 +779,7 @@ class GlitchModel(object):
                         label=r'$\ell = {}$'.format(l))
             plt.legend()
             for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
-                mod_params[[5,7]] = 1e-6 * mod_params[[5,7]]
+                mod_params[5] = 1e-6 * mod_params[5]
                 ax1.plot(freq_array,rr010_freqinvpoly_amp(freq_array,mod_params),c='#999999',alpha=0.1)
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
@@ -904,9 +904,9 @@ class GlitchModel(object):
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
             ax2 = fig_result.add_subplot(gs[2,0])
-        fig_corner.savefig(save_params["nameplate"]+'_'+'corner.png')
-        fig_walkers.savefig(save_params["nameplate"]+'_'+'walkers.png')
-        fig_result.savefig(save_params["nameplate"]+'_'+'result.png')
+        fig_corner.savefig(save_params["nameplate"]+'_'+model_name+'_'+'corner.png')
+        fig_walkers.savefig(save_params["nameplate"]+'_'+model_name+'_'+'walkers.png')
+        fig_result.savefig(save_params["nameplate"]+'_'+model_name+'_'+'result.png')
 
 
 # List of models to represent glitches in different seismic indicators
