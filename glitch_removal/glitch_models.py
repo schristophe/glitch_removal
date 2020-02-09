@@ -29,8 +29,25 @@ class GlitchModel(object):
         # total acoustic radius
         T0 = (2*star_params["delta_nu"])**-1
         if self.model == d2nu_verma:
-            c_init, V = np.polyfit(self.data.freq,self.data.d2nu,1,cov=True)
-            sig_c_init = np.sqrt(np.diag(V))
+            a_init, V = np.polyfit(self.data.freq,self.data.d2nu,1,cov=True)
+            sig_a_init = np.sqrt(np.diag(V))
+            res_osc = self.data.d2nu - np.polyval(a_init,self.data.freq)
+            tau_random_He = 0.5*(T_min+0.5*T0) + np.random.randn() * 0.5 * (0.5*T0-T_min)
+            tau_random_CE = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
+            c2_random = 5e-7
+            ig0 = [a_init[1],a_init[0],0.1*res_osc.max()*star_params["numax"]**2,\
+                    tau_random_CE,np.pi,res_osc.max()/star_params["numax"],\
+                    c2_random,tau_random_He,np.pi]
+            self.bds = ((a_init[1]-3*sig_a_init[1],a_init[1]+3*sig_a_init[1]),\
+                    (a_init[0]-3*sig_a_init[0],a_init[0]+3*sig_a_init[0]),\
+                    (0,res_osc.max()*star_params["numax"]**2),
+                    (2*T_min, T0),\
+                    (-np.pi,4*np.pi),
+                    (0.1*res_osc.max()/star_params["numax"],2*res_osc.max()/star_params["numax"]),\
+                    (4e-8,8e-6),\
+                    (T_min, 0.5*T0),
+                    (-np.pi,4*np.pi))
+            nll = lambda *args: -lnlikelihood_d2nu(*args)
         elif self.model == d2nu_basu:
             smooth_component_basu = lambda x, c0, c1, c2 : d2nu_basu(x,[c0,c1,c2,0,0,0,0,0,0,0,0])
             popt,pcor = op.curve_fit(smooth_component_basu,self.data.freq,self.data.d2nu,p0 = [0.075,-2.7e5,3e-9])
@@ -40,7 +57,7 @@ class GlitchModel(object):
             c_init, V = np.polyfit(self.data.freq,self.data.rr010,2,cov=True)
             sig_c_init = np.sqrt(np.diag(V))
             res_osc = self.data.rr010 - np.polyval(c_init, self.data.freq)
-            T_random = 0.5*(2*T_min+T0) + np.random.randn() * 0.5 * (T0-2*T_min)
+            T_random = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
             ig0 = [c_init[2],c_init[1],c_init[0],res_osc.max(),T_random,np.pi]
             self.bds = ((c_init[2]-3*sig_c_init[2],c_init[2]+3*sig_c_init[2]),\
                     (c_init[1]-3*sig_c_init[1],c_init[1]+3*sig_c_init[1]),\
@@ -53,7 +70,7 @@ class GlitchModel(object):
             c_init, V = np.polyfit(self.data.freq,self.data.rr010,2,cov=True)
             sig_c_init = np.sqrt(np.diag(V))
             res_osc = self.data.rr010 - np.polyval(c_init, self.data.freq)
-            T_random = 0.5*(2*T_min+T0) + np.random.randn() * 0.5 * (T0-2*T_min)
+            T_random = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
             ig0 = [c_init[2],c_init[1],c_init[0],res_osc.max(),T_random,np.pi]
             self.bds = ((c_init[2]-3*sig_c_init[2],c_init[2]+3*sig_c_init[2]),\
                     (c_init[1]-3*sig_c_init[1],c_init[1]+3*sig_c_init[1]),\
@@ -115,9 +132,9 @@ class GlitchModel(object):
         sampler = emcee.EnsembleSampler(emcee_params["nwalkers"], emcee_params["ndim"],self.prob, args=(self.model,self.data,self.bds))
         sampler.run_mcmc(pos,emcee_params["nsteps"])
         # Process MCMC chains
-        if self.model == d2nu_verma or self.model == rr010_freqinvsq_amp_polyper:
-            sampler.chain[:,:,[5,8]] = np.mod(sampler.chain[:,:,[5,8]],2*np.pi) # fold the phases on the [0,2pi] interval
-            sampler.chain[:,:,[4,7]] = 1e6 * sampler.chain[:,:,[4,7]]   # convert acoustic depth in seconds
+        if self.model == d2nu_verma:
+            sampler.chain[:,:,[4,8]] = np.mod(sampler.chain[:,:,[4,8]],2*np.pi) # fold the phases on the [0,2pi] interval
+            sampler.chain[:,:,[3,7]] = 1e6 * sampler.chain[:,:,[3,7]]   # convert acoustic depth in seconds
         elif self.model == d2nu_basu:
             sampler.chain[:,:,[6,10]] = np.mod(sampler.chain[:,:,[6,10]],2*np.pi)
             sampler.chain[:,:,[6,10]] = 1e6 * sampler.chain[:,:,[6,10]]
@@ -130,6 +147,9 @@ class GlitchModel(object):
         elif self.model == rr010_freqinvpoly_amp:
             sampler.chain[:,:,6] = np.mod(sampler.chain[:,:,6],2*np.pi)
             sampler.chain[:,:,5] = 1e6 * sampler.chain[:,:,5]
+        elif self.model == rr010_freqinvsq_amp_polyper:
+            sampler.chain[:,:,[5,8]] = np.mod(sampler.chain[:,:,[5,8]],2*np.pi) # fold the phases on the [0,2pi] interval
+            sampler.chain[:,:,[4,7]] = 1e6 * sampler.chain[:,:,[4,7]]   # convert acoustic depth in seconds
         self.sampler = sampler
         # Discard burn-in steps
         self.samples = sampler.chain[:, emcee_params["nburns"]:, :].reshape((-1, emcee_params["ndim"]))
@@ -192,7 +212,7 @@ class GlitchModel(object):
             logfile.close()
             # Corner plot
             labels = ['$a_0$','$a_1$','$b_0$',r'$\tau_{\rm CE}$',\
-                    r'$\phi_{\rm CE}$','$c_0$','$c_1$',r'$\tau_{\rm He}$',\
+                    r'$\phi_{\rm CE}$','$c_0$','$c_2$',r'$\tau_{\rm He}$',\
                     r'$\phi_{\rm He}$']
             fig_corner = corner.corner(self.samples,labels=labels)
             # Walkers position
@@ -254,12 +274,13 @@ class GlitchModel(object):
             markers = ['o','^','s']
             for l in np.arange(3):
                 i_l = self.data.l == l
-                ax1.errorbar(self.data.freq[i_l],self.data.rr010[i_l],
+                ax1.errorbar(self.data.freq[i_l],self.data.d2nu[i_l],
                         yerr=self.data.err[i_l],fmt=markers[l],
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
             plt.legend()
             for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
+                mod_params[[3,7]] = 1e-6 * mod_params[[3,7]]
                 ax1.plot(freq_array,d2nu_verma(freq_array,mod_params),c='#999999',alpha=0.1)
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'$\Delta_2 \nu$ $(\mu Hz)$')
@@ -916,7 +937,7 @@ def d2nu_verma(x,args):
         differences D2nu. """
     return args[0] + args[1]*x + \
             (args[2]/x**2)*np.sin(4*np.pi*x*args[3]+args[4]) + \
-            args[5]*np.exp(-args[6]*x**2)*np.sin(4*np.pi*x*args[7]+args[9])
+            args[5]*x*np.exp(-args[6]*x**2)*np.sin(4*np.pi*x*args[7]+args[8])
 
 
 def d2nu_basu(x,args):
