@@ -49,8 +49,29 @@ class GlitchModel(object):
                     (-np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_d2nu(*args)
         elif self.model == d2nu_basu:
-            smooth_component_basu = lambda x, c0, c1, c2 : d2nu_basu(x,[c0,c1,c2,0,0,0,0,0,0,0,0])
-            popt,pcor = op.curve_fit(smooth_component_basu,self.data.freq,self.data.d2nu,p0 = [0.075,-2.7e5,3e-9])
+            smooth_component_basu = lambda x, a1, a2, a3 : d2nu_basu(x,[a1,a2,a3,0,0,0,0,0,0,0,0])
+            a_init, V = op.curve_fit(smooth_component_basu,self.data.freq,self.data.d2nu,p0 = [0.05,-5e-5,-3e5])
+            sig_a_init = np.sqrt(np.diag(V))
+            res_osc = self.data.d2nu - smooth_component_basu(self.data.freq,a_init[0],a_init[1],a_init[2])
+            tau_random_He = 0.5*(T_min+0.5*T0) + np.random.randn() * 0.5 * (0.5*T0-T_min)
+            tau_random_CE = 0.5*(2*T_min+T0) + np.random.randn() * 0.5 * (T0-2*T_min)
+            ig0 = [a_init[0],a_init[1],a_init[2],\
+                    res_osc.max(),res_osc.max()*star_params["numax"]**2,\
+                    tau_random_He,np.pi,\
+                    0.1*res_osc.max(),0.1*res_osc.max()*star_params["numax"]**2,\
+                    tau_random_CE,np.pi]
+            self.bds = ((a_init[0]-2*sig_a_init[0],a_init[0]+2*sig_a_init[0]),\
+                    (a_init[1]-2*sig_a_init[1],a_init[1]+2*sig_a_init[1]),\
+                    (a_init[2]-3*sig_a_init[2],a_init[2]+3*sig_a_init[2]),\
+                    (0.1*res_osc.max(),2*res_osc.max()),\
+                    (0.1*res_osc.max()*star_params["numax"]**2,2*res_osc.max()*star_params["numax"]**2),\
+                    (T_min, 0.5*T0),\
+                    (-np.pi,4*np.pi),\
+                    (0,res_osc.max()),\
+                    (0,res_osc.max()*star_params["numax"]**2),\
+                    (2*T_min, T0),\
+                    (-np.pi,4*np.pi))
+            nll = lambda *args: -lnlikelihood_d2nu(*args)
         # elif self.model == d2nu_houdek:
         #     pass
         elif self.model == rr010_const_amp:
@@ -137,7 +158,7 @@ class GlitchModel(object):
             sampler.chain[:,:,[3,7]] = 1e6 * sampler.chain[:,:,[3,7]]   # convert acoustic depth in seconds
         elif self.model == d2nu_basu:
             sampler.chain[:,:,[6,10]] = np.mod(sampler.chain[:,:,[6,10]],2*np.pi)
-            sampler.chain[:,:,[6,10]] = 1e6 * sampler.chain[:,:,[6,10]]
+            sampler.chain[:,:,[5,9]] = 1e6 * sampler.chain[:,:,[5,9]]
         # elif self.model == d2nu_houdek:
         #     sampler.chain[:,:,[]] = np.mod(sampler.chain[:,:,[]],2*np.pi)
         elif self.model == rr010_const_amp or self.model == rr010_freqinv_amp or \
@@ -184,28 +205,28 @@ class GlitchModel(object):
                     'b0\t'+str('%10.4e' % self.mod_params_mcmc[2][0])+'\t'+\
                     str('%10.4e' % -self.mod_params_mcmc[2][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[2][1])+'\n'+\
-                    'tau_CE'+str('%10.2f' % self.mod_params_mcmc[3][0])+'\t'+\
+                    'tau_CE\t'+str('%10.2f' % self.mod_params_mcmc[3][0])+'\t'+\
                     str('%10.2f' % -self.mod_params_mcmc[3][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[3][1])+'\n'+\
-                    'phi_CE'+str('%10.4f' % self.mod_params_mcmc[4][0])+'\t'+\
+                    'phi_CE\t'+str('%10.4f' % self.mod_params_mcmc[4][0])+'\t'+\
                     str('%10.4f' % -self.mod_params_mcmc[4][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[4][1])+'\n'+\
-                    'c0'+str('%10.4e' % self.mod_params_mcmc[5][0])+'\t'+\
+                    'c0\t'+str('%10.4e' % self.mod_params_mcmc[5][0])+'\t'+\
                     str('%10.4e' % -self.mod_params_mcmc[5][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[5][1])+'\n'+\
-                    'c2'+str('%10.4e' % self.mod_params_mcmc[6][0])+'\t'+\
+                    'c2\t'+str('%10.4e' % self.mod_params_mcmc[6][0])+'\t'+\
                     str('%10.4e' % -self.mod_params_mcmc[6][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[6][1])+'\n'+\
-                    'tau_He'+str('%10.2f' % self.mod_params_mcmc[7][0])+'\t'+\
+                    'tau_He\t'+str('%10.2f' % self.mod_params_mcmc[7][0])+'\t'+\
                     str('%10.2f' % -self.mod_params_mcmc[7][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[7][1])+'\n'+\
-                    'phi_He'+str('%10.4f' % self.mod_params_mcmc[8][0])+'\t'+\
+                    'phi_He\t'+str('%10.4f' % self.mod_params_mcmc[8][0])+'\t'+\
                     str('%10.4f' % -self.mod_params_mcmc[8][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[8][1])+'\n\n')
             logfile.write('emcee parameters\n'+'_____________\n'+\
                     'nwalkers\t'+str('%d' % emcee_params["nwalkers"])+'\n'+\
                     'nburns\t'+str('%d' % emcee_params["nburns"])+'\n'+\
-                    'nsteps\t'+str('%d' % emcee_params["nsteps"]))
+                    'nsteps\t'+str('%d' % emcee_params["nsteps"])+'\n\n')
             logfile.write('fit parameters\n'+'_____________\n'+\
                     'freqref\t'+str('%10.2f' % fit_params["freqref"])+'\n'+\
                     'nsvd\t'+str('%d' % fit_params["nsvd"]))
@@ -310,35 +331,35 @@ class GlitchModel(object):
                     'b2\t'+str('%10.4e' % self.mod_params_mcmc[4][0])+'\t'+\
                     str('%10.4e' % -self.mod_params_mcmc[4][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[4][1])+'\n'+\
-                    'tau_He'+str('%10.2f' % self.mod_params_mcmc[5][0])+'\t'+\
+                    'tau_He\t'+str('%10.2f' % self.mod_params_mcmc[5][0])+'\t'+\
                     str('%10.2f' % -self.mod_params_mcmc[5][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[5][1])+'\n'+\
-                    'phi_He'+str('%10.4f' % self.mod_params_mcmc[6][0])+'\t'+\
+                    'phi_He\t'+str('%10.4f' % self.mod_params_mcmc[6][0])+'\t'+\
                     str('%10.4f' % -self.mod_params_mcmc[6][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[6][1])+'\n'+\
-                    'c1'+str('%10.4e' % self.mod_params_mcmc[7][0])+'\t'+\
+                    'c1\t'+str('%10.4e' % self.mod_params_mcmc[7][0])+'\t'+\
                     str('%10.4e' % -self.mod_params_mcmc[7][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[7][1])+'\n'+\
-                    'c2'+str('%10.4e' % self.mod_params_mcmc[8][0])+'\t'+\
+                    'c2\t'+str('%10.4e' % self.mod_params_mcmc[8][0])+'\t'+\
                     str('%10.4e' % -self.mod_params_mcmc[8][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[8][1])+'\n'+\
-                    'tau_CE'+str('%10.2f' % self.mod_params_mcmc[9][0])+'\t'+\
+                    'tau_CE\t'+str('%10.2f' % self.mod_params_mcmc[9][0])+'\t'+\
                     str('%10.2f' % -self.mod_params_mcmc[9][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[9][1])+'\n'+\
-                    'phi_CE'+str('%10.4f' % self.mod_params_mcmc[10][0])+'\t'+\
+                    'phi_CE\t'+str('%10.4f' % self.mod_params_mcmc[10][0])+'\t'+\
                     str('%10.4f' % -self.mod_params_mcmc[10][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[10][1])+'\n\n')
             logfile.write('emcee parameters\n'+'_____________\n'+\
                     'nwalkers\t'+str('%d' % emcee_params["nwalkers"])+'\n'+\
                     'nburns\t'+str('%d' % emcee_params["nburns"])+'\n'+\
-                    'nsteps\t'+str('%d' % emcee_params["nsteps"]))
+                    'nsteps\t'+str('%d' % emcee_params["nsteps"])+'\n\n')
             logfile.write('fit parameters\n'+'_____________\n'+\
                     'freqref\t'+str('%10.2f' % fit_params["freqref"])+'\n'+\
                     'nsvd\t'+str('%d' % fit_params["nsvd"]))
             logfile.close()
             # Corner plot
-            labels = ['$a_1$','$a_2$','$a_3$','$b_1$','$b_2$,\
-                    'r'$\tau_{\rm He}$',r'$\phi_{\rm He}$',\
+            labels = ['$a_1$','$a_2$','$a_3$','$b_1$','$b_2$',\
+                    r'$\tau_{\rm He}$',r'$\phi_{\rm He}$',\
                     '$c_1$','$c_2$',r'$\tau_{\rm CE}$',r'$\phi_{\rm CE}$']
             fig_corner = corner.corner(self.samples,labels=labels)
             # Walkers position
@@ -376,7 +397,7 @@ class GlitchModel(object):
             #
             ax5.fill_between(nsteps_tab,walkers_redux[0,:,4],walkers_redux[2,:,4],color='#b5b5b5',alpha=0.5)
             ax5.plot(nsteps_tab,walkers_redux[1,:,4],lw=2)
-            ax5.set_ylabel(labels[1])
+            ax5.set_ylabel(labels[4])
             #
             ax6.fill_between(nsteps_tab,walkers_redux[0,:,5],walkers_redux[2,:,5],color='#b5b5b5',alpha=0.5)
             ax6.plot(nsteps_tab,walkers_redux[1,:,5],lw=2)
@@ -410,12 +431,13 @@ class GlitchModel(object):
             markers = ['o','^','s']
             for l in np.arange(3):
                 i_l = self.data.l == l
-                ax1.errorbar(self.data.freq[i_l],self.data.rr010[i_l],
+                ax1.errorbar(self.data.freq[i_l],self.data.d2nu[i_l],
                         yerr=self.data.err[i_l],fmt=markers[l],
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
             plt.legend()
             for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
+                mod_params[[5,9]] = 1e-6 * mod_params[[5,9]]
                 ax1.plot(freq_array,d2nu_basu(freq_array,mod_params),c='#999999',alpha=0.1)
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'$\Delta_2 \nu$ $(\mu Hz)$')
