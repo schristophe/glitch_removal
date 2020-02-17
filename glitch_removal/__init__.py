@@ -1,6 +1,6 @@
 # initialise glitch-removal
 
-__all__ = ["freqtable","d2nutable","ratiostable","glitch_models"]
+__all__ = ["freqtable","d2nutable","ratiostable","glitch_models","params"]
 __version__ = "0.0.1"
 
 __author__ = "Steven Christophe <steven.christophe@obspm.fr>"

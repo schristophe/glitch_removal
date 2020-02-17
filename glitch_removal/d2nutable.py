@@ -2,7 +2,7 @@
 #
 import numpy as np
 import matplotlib.pyplot as plt
-from params import *
+from .params import *
 
 
 prop_cycle = plt.rcParams['axes.prop_cycle']

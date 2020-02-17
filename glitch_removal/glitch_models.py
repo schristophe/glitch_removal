@@ -6,7 +6,7 @@ import emcee
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import corner
-from params import *
+from .params import *
 
 prop_cycle = plt.rcParams['axes.prop_cycle']
 colors = prop_cycle.by_key()['color']
