@@ -23,5 +23,6 @@ fit_params = {
 
 ########  Saving options #############
 save_params = {
-"nameplate": '8938364'    # all saved files will begin by the value of nameplate
+"directory": '8938364/',  # files are saved in this directory (created if does not exist)
+"nameplate": '8938364'   # all saved files will begin by the value of nameplate
 }
