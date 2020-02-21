@@ -188,8 +188,12 @@ class GlitchModel(object):
         """ Save a log file with model parameter estimates and plot the
             corner plot, the evolution of the walkers position and the
             result of the sampling in the observed plane """
-        if not os.path.isdir(save_params["directory"]):
+        if save_params["directory"] == '':
+            directory = ''
+        elif not os.path.isdir(save_params["directory"]):
             os.mkdir(save_params["directory"])
+            directory = save_params["directory"].split("/")[0]+'/' # making sure there is a slash
+        else:
             directory = save_params["directory"].split("/")[0]+'/' # making sure there is a slash
         if self.model == d2nu_verma:
             model_name = 'd2nu_verma'
@@ -537,6 +541,7 @@ class GlitchModel(object):
                         label=r'$\ell = {}$'.format(l))
             plt.legend()
             for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
+                mod_params[4] = 1e-6 * mod_params[4]
                 ax1.plot(freq_array,rr010_const_amp(freq_array,mod_params),c='#999999',alpha=0.1)
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$)')

@@ -32,17 +32,33 @@ class D2nuTable(object):
         """ Remove observational points using sigma-clipping """
         median_sigma = np.median(self.err)
         i_kept = np.argwhere(self.err <= sigma*median_sigma)[:,0]
-        l_kept, n_kept, freq_kept, rr010_kept, err_kept = \
+        l_kept, n_kept, freq_kept, d2nu_kept, err_kept = \
                 self.l[i_kept], self.n[i_kept], self.freq[i_kept],\
-                self.rr010[i_kept],self.err[i_kept]
+                self.d2nu[i_kept],self.err[i_kept]
         matcov_kept = self.matcov[i_kept,:][:,i_kept]
         i_sort = np.argsort(freq_kept)
         l_kept, n_kept, freq_kept, rr010_kept, err_kept = \
                 l_kept[i_sort], n_kept[i_sort], freq_kept[i_sort],\
-                rr010_kept[i_sort], err_kept[i_sort]
+                d2nu_kept[i_sort], err_kept[i_sort]
         matcov_kept = matcov_kept[i_sort,:][:,i_sort]
         self.cut_table = D2nuTable()
-        self.cut_table.create(l_kept,n_kept,freq_kept,rr010_kept,err_kept,matcov_kept)
+        self.cut_table.create(l_kept,n_kept,freq_kept,d2nu_kept,err_kept,matcov_kept)
+
+    def cut_range(self,freqmin,freqmax):
+        """ Keep only data points between freqmin and freqmax """
+        i_kept = np.argwhere((self.freq >= freqmin) & (self.freq <= freqmax))[:,0]
+        l_kept, n_kept, freq_kept, d2nu_kept, err_kept = \
+                self.l[i_kept], self.n[i_kept], self.freq[i_kept], \
+                self.d2nu[i_kept],self.err[i_kept]
+        matcov_kept = self.matcov[i_kept,:][:,i_kept]
+        # sort data points by increasing mode frequency
+        i_sort = np.argsort(freq_kept)
+        l_kept, n_kept, freq_kept, d2nu_kept, err_kept = \
+                l_kept[i_sort], n_kept[i_sort], freq_kept[i_sort], \
+                d2nu_kept[i_sort], err_kept[i_sort]
+        matcov_kept = matcov_kept[i_sort,:][:,i_sort]
+        self.cut_range_table = D2nuTable()
+        self.cut_range_table.create(l_kept,n_kept,freq_kept,d2nu_kept,err_kept,matcov_kept)
 
 
     # Methods related to the covariance matrix
