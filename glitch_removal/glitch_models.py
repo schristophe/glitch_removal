@@ -77,68 +77,78 @@ class GlitchModel(object):
         # elif self.model == d2nu_houdek:
         #     pass
         elif self.model == rr010_const_amp:
-            c_init, V = np.polyfit(self.data.freq,self.data.rr010,2,cov=True)
+            smooth_component_rr010_const_amp = lambda x, c0, c1, c2 : rr010_const_amp(x,[c0,c1,c2,0,0,0])
+            c_init, V = op.curve_fit(smooth_component_rr010_const_amp,\
+                    self.data.freq,self.data.rr010)
             sig_c_init = np.sqrt(np.diag(V))
-            res_osc = self.data.rr010 - np.polyval(c_init, self.data.freq)
+            res_osc = self.data.rr010 - smooth_component_rr010_const_amp(self.data.freq,c_init[0],c_init[1],c_init[2])
             T_random = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
-            ig0 = [c_init[2],c_init[1],c_init[0],res_osc.max(),T_random,np.pi]
-            self.bds = ((c_init[2]-3*sig_c_init[2],c_init[2]+3*sig_c_init[2]),\
-                    (c_init[1]-3*sig_c_init[1],c_init[1]+3*sig_c_init[1]),\
-                    (c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
+            ig0 = [c_init[0],c_init[1],c_init[2],res_osc.max(),T_random,np.pi]
+            self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
+                    (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
+                    (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
                     (0,3*res_osc.max()),\
                     (2*T_min,T0-2*T_min),\
                     (-np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_rr010(*args)
         elif self.model == rr010_freqinv_amp:
-            c_init, V = np.polyfit(self.data.freq,self.data.rr010,2,cov=True)
+            smooth_component_rr010_freqinv_amp = lambda x, c0, c1, c2 : rr010_freqinv_amp(x,[c0,c1,c2,0,0,0])
+            c_init, V = op.curve_fit(smooth_component_rr010_freqinv_amp,\
+                    self.data.freq,self.data.rr010)
             sig_c_init = np.sqrt(np.diag(V))
-            res_osc = self.data.rr010 - np.polyval(c_init, self.data.freq)
+            res_osc = self.data.rr010 - smooth_component_rr010_freqinv_amp(self.data.freq,c_init[0],c_init[1],c_init[2])
             T_random = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
-            ig0 = [c_init[2],c_init[1],c_init[0],res_osc.max(),T_random,np.pi]
-            self.bds = ((c_init[2]-3*sig_c_init[2],c_init[2]+3*sig_c_init[2]),\
-                    (c_init[1]-3*sig_c_init[1],c_init[1]+3*sig_c_init[1]),\
-                    (c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
+            ig0 = [c_init[0],c_init[1],c_init[2],res_osc.max(),T_random,np.pi]
+            self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
+                    (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
+                    (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
                     (0,3*res_osc.max()),\
                     (2*T_min,T0-2*T_min),\
                     (-np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_rr010(*args)
         elif self.model == rr010_freqinvsq_amp:
-            c_init, V = np.polyfit(self.data.freq,self.data.rr010,2,cov=True)
+            smooth_component_rr010_freqinvsq_amp = lambda x, c0, c1, c2 : rr010_freqinvsq_amp(x,[c0,c1,c2,0,0,0])
+            c_init, V = op.curve_fit(smooth_component_rr010_freqinvsq_amp,\
+                    self.data.freq,self.data.rr010)
             sig_c_init = np.sqrt(np.diag(V))
-            res_osc = self.data.rr010 - np.polyval(c_init, self.data.freq)
+            res_osc = self.data.rr010 - smooth_component_rr010_freqinvsq_amp(self.data.freq,c_init[0],c_init[1],c_init[2])
             T_random = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
-            ig0 = [c_init[2],c_init[1],c_init[0],res_osc.max(),T_random,np.pi]
-            self.bds = ((c_init[2]-3*sig_c_init[2],c_init[2]+3*sig_c_init[2]),\
-                    (c_init[1]-3*sig_c_init[1],c_init[1]+3*sig_c_init[1]),\
-                    (c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
+            ig0 = [c_init[0],c_init[1],c_init[2],res_osc.max(),T_random,np.pi]
+            self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
+                    (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
+                    (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
                     (0,3*res_osc.max()),\
                     (T_min,T0-T_min),\
                     (-np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_rr010(*args)
         elif self.model == rr010_freqinvpoly_amp:
-            c_init, V = np.polyfit(self.data.freq,self.data.rr010,2,cov=True)
+            smooth_component_rr010_freqinvpoly_amp = lambda x, c0, c1, c2 : rr010_freqinvpoly_amp(x,[c0,c1,c2,0,0,0,0])
+            c_init, V = op.curve_fit(smooth_component_rr010_freqinvpoly_amp,\
+                    self.data.freq,self.data.rr010)
             sig_c_init = np.sqrt(np.diag(V))
-            res_osc = self.data.rr010 - np.polyval(c_init, self.data.freq)
+            res_osc = self.data.rr010 - smooth_component_rr010_freqinvpoly_amp(self.data.freq, c_init[0], c_init[1], c_init[2])
             T_random = 0.5*(2*T_min+T0) + np.random.randn() * 0.5 * (T0-2*T_min)
-            ig0 = [c_init[2],c_init[1],c_init[0],res_osc.max(),res_osc.max(),T_random,np.pi]
-            self.bds = ((c_init[2]-3*sig_c_init[2],c_init[2]+3*sig_c_init[2]),\
-                    (c_init[1]-3*sig_c_init[1],c_init[1]+3*sig_c_init[1]),\
-                    (c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
+            ig0 = [c_init[0],c_init[1],c_init[2],res_osc.max(),res_osc.max(),T_random,np.pi]
+            self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
+                    (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
+                    (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
                     (0,3*res_osc.max()),\
                     (0,3*res_osc.max()),\
                     (2*T_min,T0-2*T_min),\
                     (-np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_rr010(*args)
         elif self.model == rr010_freqinvsq_amp_polyper:
-            c_init, V = np.polyfit(self.data.freq,self.data.rr010,2,cov=True)
+            smooth_component_rr010_freqinvsq_amp_polyper = lambda x, c0, c1, c2 : rr010_freqinvpoly_amp(x,[c0,c1,c2,0,0,0,0,0,0])
+            c_init, V = op.curve_fit(smooth_component_rr010_freqinvsq_amp_polyper,\
+                    self.data.freq,self.data.rr010)
             sig_c_init = np.sqrt(np.diag(V))
-            res_osc = self.data.rr010 - np.polyval(c_init, self.data.freq)
+            res_osc = self.data.rr010 - smooth_component_rr010_freqinvsq_amp_polyper(self.data.freq, c_init[0], c_init[1], c_init[2])
             T_random_0 = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
             T_random_1 = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
-            ig0 = [c_init[2],c_init[1],c_init[0],res_osc.max(),T_random_0,np.pi,0.1*res_osc.max(),T_random_1,np.pi]
-            self.bds = ((c_init[2]-3*sig_c_init[2],c_init[2]+3*sig_c_init[2]),\
-                    (c_init[1]-3*sig_c_init[1],c_init[1]+3*sig_c_init[1]),\
-                    (c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
+            ig0 = [c_init[0],c_init[1],c_init[2],res_osc.max(),T_random_0,np.pi,0.1*res_osc.max(),T_random_1,np.pi]
+            self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
+                    (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
+                    (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
                     (0,3*res_osc.max()),\
                     (T_min,T0-T_min),\
                     (-np.pi,4*np.pi),\
@@ -148,6 +158,15 @@ class GlitchModel(object):
             nll = lambda *args: -lnlikelihood_rr010(*args)
         self.ig0 = op.minimize(nll,ig0,args=(self.model,self.data),bounds=self.bds)
         self.ig0 = self.ig0["x"]
+
+
+    def setup_smooth_component(self):
+        """ Ensure the fitted coefficients of the polynomial in rr010 models
+        will not be correlated by setting the value of beta, gamma1 and gamma2.
+        See Appendix B of Deheuvels et al. 2016 for more information. """
+        fit_params["beta"], fit_params["gamma1"], fit_params["gamma2"] = \
+                op.fsolve(f2solve_smooth_component,x0=[star_params["numax"]]*3,args=(self.data.freq,self.data.inv_matcov))
+
 
     def run_mcmc(self):
         """ Run the MCMC sampling of the posterior probability function """
@@ -185,9 +204,9 @@ class GlitchModel(object):
         self.mod_params_mcmc = np.transpose(p)
 
     def log_and_plot(self):
-        """ Save a log file with model parameter estimates and plot the
+        """ Save a log file with model parameter estimates and plot/save the
             corner plot, the evolution of the walkers position and the
-            result of the sampling in the observed plane """
+            result of the sampling in the observed plane. """
         if save_params["directory"] == '':
             directory = ''
         elif not os.path.isdir(save_params["directory"]):
@@ -458,7 +477,7 @@ class GlitchModel(object):
             logfile = open(directory+save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
-                    'c0 + c1*freq + c2*freq**2 + ' +\
+                    'c0 + c1*(freq - beta) + c2*(freq - gamma1)*(freq - gamma2) + ' +\
                     'amp*sin(4*pi*freq*T_CE+phi_CE)\n\n')
             logfile.write('Results\n'+'_____________\n'+\
                     'c0\t'+str('%10.4e' % self.mod_params_mcmc[0][0])+'\t'+\
@@ -485,7 +504,10 @@ class GlitchModel(object):
                     'nsteps\t'+str('%d' % emcee_params["nsteps"])+'\n\n')
             logfile.write('fit parameters\n'+'_____________\n'+\
                     'freqref\t'+str('%10.2f' % fit_params["freqref"])+'\n'+\
-                    'nsvd\t'+str('%d' % fit_params["nsvd"]))
+                    'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n'+\
+                    'beta\t'+str("%10.2f" % fit_params["beta"])+'\n'+\
+                    'gamma1\t'+str("%10.2f" % fit_params["gamma1"])+'\n'+\
+                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"]))
             logfile.close()
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
@@ -544,7 +566,7 @@ class GlitchModel(object):
                 mod_params[4] = 1e-6 * mod_params[4]
                 ax1.plot(freq_array,rr010_const_amp(freq_array,mod_params),c='#999999',alpha=0.1)
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
-            ax1.set_ylabel(r'${rr}_{010}$)')
+            ax1.set_ylabel(r'${rr}_{010}$')
             ax2 = fig_result.add_subplot(gs[2,0])
         elif self.model == rr010_freqinv_amp:
             model_name = 'rr010_freqinv_amp'
@@ -552,7 +574,7 @@ class GlitchModel(object):
             logfile = open(directory+save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
-                    'c0 + c1*freq + c2*freq**2 + ' +\
+                    'c0 + c1*(freq - beta) + c2*(freq - gamma1)*(freq - gamma2) + ' +\
                     'amp*(freqref/freq)*sin(4*pi*freq*T_CE+phi_CE)\n\n')
             logfile.write('Results\n'+'_____________\n'+\
                     'c0\t'+str('%10.4e' % self.mod_params_mcmc[0][0])+'\t'+\
@@ -579,7 +601,10 @@ class GlitchModel(object):
                     'nsteps\t'+str('%d' % emcee_params["nsteps"])+'\n\n')
             logfile.write('fit parameters\n'+'_____________\n'+\
                     'freqref\t'+str('%10.2f' % fit_params["freqref"])+'\n'+\
-                    'nsvd\t'+str('%d' % fit_params["nsvd"]))
+                    'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n'+\
+                    'beta\t'+str("%10.2f" % fit_params["beta"])+'\n'+\
+                    'gamma1\t'+str("%10.2f" % fit_params["gamma1"])+'\n'+\
+                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"]))
             logfile.close()
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
@@ -646,7 +671,7 @@ class GlitchModel(object):
             logfile = open(directory+save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
-                    'c0 + c1*freq + c2*freq**2 + ' +\
+                    'c0 + c1*(freq - beta) + c2*(freq - gamma1)*(freq - gamma2) + ' +\
                     'amp*(freqref/freq)**2*sin(4*pi*freq*T_CE+phi_CE)\n\n')
             logfile.write('Results\n'+'_____________\n'+\
                     'c0\t'+str('%10.4e' % self.mod_params_mcmc[0][0])+'\t'+\
@@ -673,7 +698,10 @@ class GlitchModel(object):
                     'nsteps\t'+str('%d' % emcee_params["nsteps"])+'\n\n')
             logfile.write('fit parameters\n'+'_____________\n'+\
                     'freqref\t'+str('%10.2f' % fit_params["freqref"])+'\n'+\
-                    'nsvd\t'+str('%d' % fit_params["nsvd"]))
+                    'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n'+\
+                    'beta\t'+str("%10.2f" % fit_params["beta"])+'\n'+\
+                    'gamma1\t'+str("%10.2f" % fit_params["gamma1"])+'\n'+\
+                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"]))
             logfile.close()
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
@@ -740,7 +768,7 @@ class GlitchModel(object):
             logfile = open(directory+save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
-                    'c0 + c1*freq + c2*freq**2 + ' +\
+                    'c0 + c1*(freq - beta) + c2*(freq - gamma1)*(freq - gamma2) + ' +\
                     '(amp0*(freqref/freq)+amp1*(freqref/freq)**2) * '+
                     'sin(4*pi*freq*T_CE+phi_CE)'+'\n\n')
             logfile.write('Results\n'+'_____________\n'+\
@@ -771,7 +799,10 @@ class GlitchModel(object):
                     'nsteps\t'+str('%d' % emcee_params["nsteps"])+'\n\n')
             logfile.write('fit parameters\n'+'_____________\n'+\
                     'freqref\t'+str('%10.2f' % fit_params["freqref"])+'\n'+\
-                    'nsvd\t'+str('%d' % fit_params["nsvd"]))
+                    'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n'+\
+                    'beta\t'+str("%10.2f" % fit_params["beta"])+'\n'+\
+                    'gamma1\t'+str("%10.2f" % fit_params["gamma1"])+'\n'+\
+                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"]))
             logfile.close()
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
@@ -843,7 +874,7 @@ class GlitchModel(object):
             logfile = open(directory+save_params["nameplate"]+'_'+model_name+'.log',"w")
             logfile.write('Glitch fitting with glitch_removal\n'+
                     'Glitch model: '+model_name+'\n'+
-                    'c0 + c1*freq + c2*freq**2 + ' +\
+                    'c0 + c1*(freq - beta) + c2*(freq - gamma1)*(freq - gamma2) + ' +\
                     'amp0*(freqref/freq)**2*sin(4*pi*freq*T0+phi0) + '+\
                     'amp1*(freqref/freq)**2*sin(4*pi*freq*T1+phi1) + '+\
                     '\n\n')
@@ -881,7 +912,10 @@ class GlitchModel(object):
                     'nsteps\t'+str('%d' % emcee_params["nsteps"])+'\n\n')
             logfile.write('fit parameters\n'+'_____________\n'+\
                     'freqref\t'+str('%10.2f' % fit_params["freqref"])+'\n'+\
-                    'nsvd\t'+str('%d' % fit_params["nsvd"]))
+                    'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n'+\
+                    'beta\t'+str("%10.2f" % fit_params["beta"])+'\n'+\
+                    'gamma1\t'+str("%10.2f" % fit_params["gamma1"])+'\n'+\
+                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"]))
             logfile.close()
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
@@ -987,32 +1021,37 @@ def d2nu_houdek(x,args):
 def rr010_const_amp(x,args):
     """ Functional form to model ratios rr010. Amplitude of the glitch
         signature is assumed to be independent of frequency. """
-    return args[0] + args[1]*(x) + args[2]*(x)*(x) +\
+    return args[0] + args[1]*(x-fit_params["beta"]) + \
+            args[2]*(x-fit_params["gamma1"])*(x-fit_params["gamma2"]) +\
             args[3]*np.sin(4*np.pi*x*args[4]+args[5])
 
 def rr010_freqinv_amp(x,args):
     """ Functional form to model ratios rr010. Amplitude of the glitch
         signature is prop. to 1/freq. """
-    return args[0] + args[1]*(x) + args[2]*(x)*(x) +\
+    return args[0] + args[1]*(x-fit_params["beta"]) + \
+            args[2]*(x-fit_params["gamma1"])*(x-fit_params["gamma2"]) +\
             (args[3]*fit_params["freqref"]/x)*np.sin(4*np.pi*x*args[4]+args[5])
 
 def rr010_freqinvsq_amp(x,args):
     """ Functional form to model ratios rr010. Amplitude of the glitch
         signature is prop. to 1/freq^2. """
-    return args[0] + args[1]*(x) + args[2]*(x)*(x) +\
+    return args[0] + args[1]*(x-fit_params["beta"]) + \
+            args[2]*(x-fit_params["gamma1"])*(x-fit_params["gamma2"]) +\
             (args[3]*fit_params["freqref"]**2/x**2)*np.sin(4*np.pi*x*args[4]+args[5])
 
 def rr010_freqinvpoly_amp(x,args):
     """ Functional form to model ratios rr010. Amplitude of the glitch
         signature has two components : (1/freq) + (1/freq**2). """
-    return args[0] + args[1]*(x) + args[2]*(x)*(x) +\
+    return args[0] + args[1]*(x-fit_params["beta"]) + \
+            args[2]*(x-fit_params["gamma1"])*(x-fit_params["gamma2"]) +\
             (args[3]*fit_params["freqref"]/x + \
             args[4]*fit_params["freqref"]**2/x**2) * np.sin(4*np.pi*x*args[5]+args[6])
 
 def rr010_freqinvsq_amp_polyper(x,args):
     """  Functional form to model ratios rr010. Sum of two  periodic signatures.
         Amplitude of the glitch signatures is prop to (1/freq**2)."""
-    return args[0] + args[1]*(x) + args[2]*(x)*(x) +\
+    return args[0] + args[1]*(x-fit_params["beta"]) + \
+            args[2]*(x-fit_params["gamma1"])*(x-fit_params["gamma2"]) +\
             (args[3]*fit_params["freqref"]**2/x**2)*np.sin(4*np.pi*x*args[4]+args[5]) + \
             (args[6]*fit_params["freqref"]**2/x**2)*np.sin(4*np.pi*x*args[7]+args[8])
 
@@ -1058,6 +1097,8 @@ def update_params(model,data):
                 frequency set. delta_nu has been set to
                 {star_params["delta_nu"]}. Please consider updating it to the
                 right value in params.py""")
+    # Reinitialise the values of beta, gamma1 and gamma2 in fit_params
+    fit_params["beta"], fit_params["gamma1"], fit_params["gamma2"] = 0, 0, 0
 
 # Likelihood functions
 
@@ -1236,3 +1277,18 @@ def select_prob(model):
         return lnprob_rr010_freqinvpoly_amp
     elif model == rr010_freqinvsq_amp_polyper:
         return lnprob_rr010_freqinvsq_amp_polyper
+
+
+# Miscellaneous functions
+
+def f2solve_smooth_component(params,freq,inv_matcov):
+    """ Represent the equations to solve to determine beta, gamma1 and gamma2.
+        See Deheuvels et al. 2016, Eqs. B9-11. """
+    beta, gamma1, gamma2 = params
+    Jt = np.vstack((np.ones(len(freq)),freq-beta,(freq - gamma1)*(freq - gamma2)))
+    JtWJ = np.dot(np.dot(Jt,inv_matcov),np.transpose(Jt))   # J_transposed * inv_matcov * J
+    # Non-diagonal coefficients of J_tranposed * inv_matcov * J
+    b9 = JtWJ[1,0]
+    b10 = JtWJ[2,0]
+    b11 = JtWJ[2,1]
+    return (b9,b10,b11)

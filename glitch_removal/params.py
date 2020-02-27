@@ -18,7 +18,10 @@ star_params = {
 ######### Parameters for the fit ########
 fit_params = {
 "freqref": 0.8*star_params["numax"],
-"nsvd" : 19
+"nsvd" : 19,
+"beta" : 0,
+"gamma1" : 0,
+"gamma2" : 0
 }
 
 ########  Saving options #############
