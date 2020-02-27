@@ -15,6 +15,7 @@ cd glitch_removal
 #### Dependencies
 
 `glitch_removal` is developed in Python 3.6. The following packages are required:
+* `os`
 * `numpy`
 * `scipy`
 * `matplotlib`
