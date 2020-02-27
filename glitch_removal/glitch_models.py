@@ -257,7 +257,10 @@ class GlitchModel(object):
                     'nsteps\t'+str('%d' % emcee_params["nsteps"])+'\n\n')
             logfile.write('fit parameters\n'+'_____________\n'+\
                     'freqref\t'+str('%10.2f' % fit_params["freqref"])+'\n'+\
-                    'nsvd\t'+str('%d' % fit_params["nsvd"]))
+                    'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n\n')
+            logfile.write('star parameters\n'+'_____________\n'+\
+                    'delta_nu\t'+str('%10.2f' % star_params["delta_nu"])+'\n'+\
+                    'numax\t'+str('%10.2f' % star_params["numax"]))
             logfile.close()
             # Corner plot
             labels = ['$a_0$','$a_1$','$b_0$',r'$\tau_{\rm CE}$',\
@@ -383,7 +386,10 @@ class GlitchModel(object):
                     'nsteps\t'+str('%d' % emcee_params["nsteps"])+'\n\n')
             logfile.write('fit parameters\n'+'_____________\n'+\
                     'freqref\t'+str('%10.2f' % fit_params["freqref"])+'\n'+\
-                    'nsvd\t'+str('%d' % fit_params["nsvd"]))
+                    'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n\n')
+            logfile.write('star parameters\n'+'_____________\n'+\
+                    'delta_nu\t'+str('%10.2f' % star_params["delta_nu"])+'\n'+\
+                    'numax\t'+str('%10.2f' % star_params["numax"]))
             logfile.close()
             # Corner plot
             labels = ['$a_1$','$a_2$','$a_3$','$b_1$','$b_2$',\
@@ -507,7 +513,10 @@ class GlitchModel(object):
                     'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n'+\
                     'beta\t'+str("%10.2f" % fit_params["beta"])+'\n'+\
                     'gamma1\t'+str("%10.2f" % fit_params["gamma1"])+'\n'+\
-                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"]))
+                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"])+'\n\n')
+            logfile.write('star parameters\n'+'_____________\n'+\
+                    'delta_nu\t'+str('%10.2f' % star_params["delta_nu"])+'\n'+\
+                    'numax\t'+str('%10.2f' % star_params["numax"]))
             logfile.close()
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
@@ -604,7 +613,10 @@ class GlitchModel(object):
                     'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n'+\
                     'beta\t'+str("%10.2f" % fit_params["beta"])+'\n'+\
                     'gamma1\t'+str("%10.2f" % fit_params["gamma1"])+'\n'+\
-                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"]))
+                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"])+'\n\n')
+            logfile.write('star parameters\n'+'_____________\n'+\
+                    'delta_nu\t'+str('%10.2f' % star_params["delta_nu"])+'\n'+\
+                    'numax\t'+str('%10.2f' % star_params["numax"]))
             logfile.close()
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
@@ -701,7 +713,10 @@ class GlitchModel(object):
                     'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n'+\
                     'beta\t'+str("%10.2f" % fit_params["beta"])+'\n'+\
                     'gamma1\t'+str("%10.2f" % fit_params["gamma1"])+'\n'+\
-                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"]))
+                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"])+'\n\n')
+            logfile.write('star parameters\n'+'_____________\n'+\
+                    'delta_nu\t'+str('%10.2f' % star_params["delta_nu"])+'\n'+\
+                    'numax\t'+str('%10.2f' % star_params["numax"]))
             logfile.close()
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
@@ -802,7 +817,10 @@ class GlitchModel(object):
                     'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n'+\
                     'beta\t'+str("%10.2f" % fit_params["beta"])+'\n'+\
                     'gamma1\t'+str("%10.2f" % fit_params["gamma1"])+'\n'+\
-                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"]))
+                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"])+'\n\n')
+            logfile.write('star parameters\n'+'_____________\n'+\
+                    'delta_nu\t'+str('%10.2f' % star_params["delta_nu"])+'\n'+\
+                    'numax\t'+str('%10.2f' % star_params["numax"]))
             logfile.close()
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
@@ -915,7 +933,10 @@ class GlitchModel(object):
                     'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n'+\
                     'beta\t'+str("%10.2f" % fit_params["beta"])+'\n'+\
                     'gamma1\t'+str("%10.2f" % fit_params["gamma1"])+'\n'+\
-                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"]))
+                    'gamma2\t'+str("%10.2f" % fit_params["gamma2"])+'\n\n')
+            logfile.write('star parameters\n'+'_____________\n'+\
+                    'delta_nu\t'+str('%10.2f' % star_params["delta_nu"])+'\n'+\
+                    'numax\t'+str('%10.2f' % star_params["numax"]))
             logfile.close()
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
