@@ -334,9 +334,20 @@ class GlitchModel(object):
             for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
                 mod_params[[3,7]] = 1e-6 * mod_params[[3,7]]
                 ax1.plot(freq_array,d2nu_verma(freq_array,mod_params),c='#999999',alpha=0.1)
+            best_params = self.mod_params_mcmc[:,0]
+            best_params[[3,7]] = 1e-6 * best_params[[3,7]]
+            ax1.plot(freq_array,d2nu_verma(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'$\Delta_2 \nu$ $(\mu Hz)$')
             ax2 = fig_result.add_subplot(gs[2,0])
+            for l in np.arange(3):
+                i_l = self.data.l == l
+                ax2.errorbar(self.data.freq[i_l],self.data.d2nu[i_l]-d2nu_verma(self.data.freq[i_l],mod_params),
+                        yerr=self.data.err[i_l],fmt=markers[l],
+                        mfc=colors[l],mec='none',ecolor='#c4c4c4',
+                        label=r'$\ell = {}$'.format(l))
+            ax2.set_xlabel(r'Frequency ($\mu$Hz)')
+            ax2.set_ylabel(r'$\delta{rr}_{010}$')
         elif self.model == d2nu_basu:
             model_name = 'd2nu_basu'
             # Log file
@@ -473,9 +484,20 @@ class GlitchModel(object):
             for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
                 mod_params[[5,9]] = 1e-6 * mod_params[[5,9]]
                 ax1.plot(freq_array,d2nu_basu(freq_array,mod_params),c='#999999',alpha=0.1)
+            best_params = self.mod_params_mcmc[:,0]
+            best_params[[5,9]] = 1e-6 * best_params[[5,9]]
+            ax1.plot(freq_array,d2nu_basu(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'$\Delta_2 \nu$ $(\mu Hz)$')
             ax2 = fig_result.add_subplot(gs[2,0])
+            for l in np.arange(3):
+                i_l = self.data.l == l
+                ax2.errorbar(self.data.freq[i_l],self.data.d2nu[i_l]-d2nu_basu(self.data.freq[i_l],mod_params),
+                        yerr=self.data.err[i_l],fmt=markers[l],
+                        mfc=colors[l],mec='none',ecolor='#c4c4c4',
+                        label=r'$\ell = {}$'.format(l))
+            ax2.set_xlabel(r'Frequency ($\mu$Hz)')
+            ax2.set_ylabel(r'$\delta{rr}_{010}$')
         # elif self.model == d2nu_houdek:
         elif self.model == rr010_const_amp:
             model_name = 'rr010_const_amp'
@@ -574,9 +596,20 @@ class GlitchModel(object):
             for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
                 mod_params[4] = 1e-6 * mod_params[4]
                 ax1.plot(freq_array,rr010_const_amp(freq_array,mod_params),c='#999999',alpha=0.1)
+            best_params = self.mod_params_mcmc[:,0]
+            best_params[4] = 1e-6 * best_params[4]
+            ax1.plot(freq_array,rr010_const_amp(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
             ax2 = fig_result.add_subplot(gs[2,0])
+            for l in np.arange(2):
+                i_l = self.data.l == l
+                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_const_amp(self.data.freq[i_l],mod_params),
+                        yerr=self.data.err[i_l],fmt=markers[l],
+                        mfc=colors[l],mec='none',ecolor='#c4c4c4',
+                        label=r'$\ell = {}$'.format(l))
+            ax2.set_xlabel(r'Frequency ($\mu$Hz)')
+            ax2.set_ylabel(r'$\delta{rr}_{010}$')
         elif self.model == rr010_freqinv_amp:
             model_name = 'rr010_freqinv_amp'
             # Log file
@@ -674,9 +707,20 @@ class GlitchModel(object):
             for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
                 mod_params[4] = 1e-6 * mod_params[4]
                 ax1.plot(freq_array,rr010_freqinv_amp(freq_array,mod_params),c='#999999',alpha=0.1)
+            best_params = self.mod_params_mcmc[:,0]
+            best_params[4] = 1e-6 * best_params[4]
+            ax1.plot(freq_array,rr010_freqinv_amp(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
             ax2 = fig_result.add_subplot(gs[2,0])
+            for l in np.arange(2):
+                i_l = self.data.l == l
+                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinv_amp(self.data.freq[i_l],mod_params),
+                        yerr=self.data.err[i_l],fmt=markers[l],
+                        mfc=colors[l],mec='none',ecolor='#c4c4c4',
+                        label=r'$\ell = {}$'.format(l))
+            ax2.set_xlabel(r'Frequency ($\mu$Hz)')
+            ax2.set_ylabel(r'$\delta{rr}_{010}$')
         elif self.model == rr010_freqinvsq_amp:
             model_name = 'rr010_freqinvsq_amp'
             # Log file
@@ -774,9 +818,20 @@ class GlitchModel(object):
             for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
                 mod_params[4] = 1e-6 * mod_params[4]
                 ax1.plot(freq_array,rr010_freqinvsq_amp(freq_array,mod_params),c='#999999',alpha=0.1)
+            best_params = self.mod_params_mcmc[:,0]
+            best_params[4] = 1e-6 * best_params[4]
+            ax1.plot(freq_array,rr010_freqinvsq_amp(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
             ax2 = fig_result.add_subplot(gs[2,0])
+            for l in np.arange(2):
+                i_l = self.data.l == l
+                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinvsq_amp(self.data.freq[i_l],mod_params),
+                        yerr=self.data.err[i_l],fmt=markers[l],
+                        mfc=colors[l],mec='none',ecolor='#c4c4c4',
+                        label=r'$\ell = {}$'.format(l))
+            ax2.set_xlabel(r'Frequency ($\mu$Hz)')
+            ax2.set_ylabel(r'$\delta{rr}_{010}$')
         elif self.model == rr010_freqinvpoly_amp:
             model_name = 'rr010_freqinvpoly_amp'
             # Log file
@@ -883,9 +938,20 @@ class GlitchModel(object):
             for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
                 mod_params[5] = 1e-6 * mod_params[5]
                 ax1.plot(freq_array,rr010_freqinvpoly_amp(freq_array,mod_params),c='#999999',alpha=0.1)
+            best_params = self.mod_params_mcmc[:,0]
+            best_params[5] = 1e-6 * best_params[5]
+            ax1.plot(freq_array,rr010_freqinvpoly_amp(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
             ax2 = fig_result.add_subplot(gs[2,0])
+            for l in np.arange(2):
+                i_l = self.data.l == l
+                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinvpoly_amp(self.data.freq[i_l],mod_params),
+                        yerr=self.data.err[i_l],fmt=markers[l],
+                        mfc=colors[l],mec='none',ecolor='#c4c4c4',
+                        label=r'$\ell = {}$'.format(l))
+            ax2.set_xlabel(r'Frequency ($\mu$Hz)')
+            ax2.set_ylabel(r'$\delta{rr}_{010}$')
         elif self.model == rr010_freqinvsq_amp_polyper:
             model_name = 'rr010_freqinvsq_amp_polyper'
             # Log file
@@ -1009,9 +1075,20 @@ class GlitchModel(object):
             for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
                 mod_params[[4,7]] = 1e-6 * mod_params[[4,7]]
                 ax1.plot(freq_array,rr010_freqinvsq_amp_polyper(freq_array,mod_params),c='#999999',alpha=0.1)
+            best_params = self.mod_params_mcmc[:,0]
+            best_params[[4,7]] = 1e-6 * best_params[[4,7]]
+            ax1.plot(freq_array,rr010_freqinvsq_amp_polyper(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
             ax2 = fig_result.add_subplot(gs[2,0])
+            for l in np.arange(2):
+                i_l = self.data.l == l
+                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinvsq_amp_polyper(self.data.freq[i_l],mod_params),
+                        yerr=self.data.err[i_l],fmt=markers[l],
+                        mfc=colors[l],mec='none',ecolor='#c4c4c4',
+                        label=r'$\ell = {}$'.format(l))
+            ax2.set_xlabel(r'Frequency ($\mu$Hz)')
+            ax2.set_ylabel(r'$\delta{rr}_{010}$')
         fig_corner.savefig(directory+save_params["nameplate"]+'_'+model_name+'_'+'corner.png')
         fig_walkers.savefig(directory+save_params["nameplate"]+'_'+model_name+'_'+'walkers.png')
         fig_result.savefig(directory+save_params["nameplate"]+'_'+model_name+'_'+'result.png')
