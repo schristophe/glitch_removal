@@ -44,11 +44,11 @@ class GlitchModel(object):
                     (a_init[0]-3*sig_a_init[0],a_init[0]+3*sig_a_init[0]),\
                     (0,res_osc.max()*star_params["numax"]**2),
                     (2*T_min, T0),\
-                    (-np.pi,4*np.pi),
+                    (-2*np.pi,4*np.pi),
                     (0.1*res_osc.max()/star_params["numax"],2*res_osc.max()/star_params["numax"]),\
                     (4e-8,8e-6),\
                     (T_min, 0.5*T0),
-                    (-np.pi,4*np.pi))
+                    (-2*np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_d2nu(*args)
         elif self.model == d2nu_basu:
             smooth_component_basu = lambda x, a1, a2, a3 : d2nu_basu(x,[a1,a2,a3,0,0,0,0,0,0,0,0])
@@ -68,11 +68,11 @@ class GlitchModel(object):
                     (0.1*res_osc.max(),2*res_osc.max()),\
                     (0.1*res_osc.max()*star_params["numax"]**2,2*res_osc.max()*star_params["numax"]**2),\
                     (T_min, 0.5*T0),\
-                    (-np.pi,4*np.pi),\
+                    (-2*np.pi,4*np.pi),\
                     (0,res_osc.max()),\
                     (0,res_osc.max()*star_params["numax"]**2),\
                     (2*T_min, T0),\
-                    (-np.pi,4*np.pi))
+                    (-2*np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_d2nu(*args)
         # elif self.model == d2nu_houdek:
         #     pass
@@ -87,9 +87,9 @@ class GlitchModel(object):
             self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
                     (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
                     (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
-                    (0,3*res_osc.max()),\
+                    (1e-5,3*res_osc.max()),\
                     (2*T_min,T0-2*T_min),\
-                    (-np.pi,4*np.pi))
+                    (-2*np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_rr010(*args)
         elif self.model == rr010_freqinv_amp:
             smooth_component_rr010_freqinv_amp = lambda x, c0, c1, c2 : rr010_freqinv_amp(x,[c0,c1,c2,0,0,0])
@@ -102,9 +102,9 @@ class GlitchModel(object):
             self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
                     (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
                     (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
-                    (0,3*res_osc.max()),\
+                    (1e-5,3*res_osc.max()),\
                     (2*T_min,T0-2*T_min),\
-                    (-np.pi,4*np.pi))
+                    (-2*np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_rr010(*args)
         elif self.model == rr010_freqinvsq_amp:
             smooth_component_rr010_freqinvsq_amp = lambda x, c0, c1, c2 : rr010_freqinvsq_amp(x,[c0,c1,c2,0,0,0])
@@ -117,9 +117,9 @@ class GlitchModel(object):
             self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
                     (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
                     (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
-                    (0,3*res_osc.max()),\
+                    (1e-5,3*res_osc.max()),\
                     (T_min,T0-T_min),\
-                    (-np.pi,4*np.pi))
+                    (-2*np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_rr010(*args)
         elif self.model == rr010_freqinvpoly_amp:
             smooth_component_rr010_freqinvpoly_amp = lambda x, c0, c1, c2 : rr010_freqinvpoly_amp(x,[c0,c1,c2,0,0,0,0])
@@ -132,10 +132,10 @@ class GlitchModel(object):
             self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
                     (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
                     (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
-                    (0,3*res_osc.max()),\
-                    (0,3*res_osc.max()),\
+                    (1e-5,3*res_osc.max()),\
+                    (1e-5,3*res_osc.max()),\
                     (2*T_min,T0-2*T_min),\
-                    (-np.pi,4*np.pi))
+                    (-2*np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_rr010(*args)
         elif self.model == rr010_freqinvsq_amp_polyper:
             smooth_component_rr010_freqinvsq_amp_polyper = lambda x, c0, c1, c2 : rr010_freqinvpoly_amp(x,[c0,c1,c2,0,0,0,0,0,0])
@@ -149,12 +149,12 @@ class GlitchModel(object):
             self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
                     (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
                     (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
-                    (0,3*res_osc.max()),\
+                    (1e-5,3*res_osc.max()),\
                     (T_min,T0-T_min),\
-                    (-np.pi,4*np.pi),\
-                    (0,res_osc.max()),\
+                    (-2*np.pi,4*np.pi),\
+                    (1e-5,res_osc.max()),\
                     (T_min,T0-T_min),\
-                    (-np.pi,4*np.pi))
+                    (-2*np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_rr010(*args)
         self.ig0 = op.minimize(nll,ig0,args=(self.model,self.data),bounds=self.bds)
         self.ig0 = self.ig0["x"]
