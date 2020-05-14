@@ -598,6 +598,12 @@ class GlitchModel(object):
                 ax1.plot(freq_array,rr010_const_amp(freq_array,mod_params),c='#999999',alpha=0.1)
             best_params = self.mod_params_mcmc[:,0]
             best_params[4] = 1e-6 * best_params[4]
+            phase_rr010_const_amp = lambda x, phi : rr010_const_amp(x,\
+                    [best_params[0],best_params[1],best_params[2],best_params[3],\
+                    best_params[4],phi])
+            phase_opt, V = op.curve_fit(phase_rr010_const_amp,\
+                    self.data.freq,self.data.rr010,bounds=(0,2*np.pi))
+            best_params[5] = phase_opt
             ax1.plot(freq_array,rr010_const_amp(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
@@ -708,7 +714,13 @@ class GlitchModel(object):
                 mod_params[4] = 1e-6 * mod_params[4]
                 ax1.plot(freq_array,rr010_freqinv_amp(freq_array,mod_params),c='#999999',alpha=0.1)
             best_params = self.mod_params_mcmc[:,0]
-            best_params[4] = 1e-6 * best_params[4]
+            best_params[4] = 1e-6 * best_params[4]  # because mode frequencies are in muHz
+            phase_rr010_freqinv_amp = lambda x, phi : rr010_freqinv_amp(x,\
+                    [best_params[0],best_params[1],best_params[2],best_params[3],\
+                    best_params[4],phi])
+            phase_opt, V = op.curve_fit(phase_rr010_freqinv_amp,\
+                    self.data.freq,self.data.rr010,bounds=(0,2*np.pi))
+            best_params[5] = phase_opt
             ax1.plot(freq_array,rr010_freqinv_amp(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
@@ -820,6 +832,12 @@ class GlitchModel(object):
                 ax1.plot(freq_array,rr010_freqinvsq_amp(freq_array,mod_params),c='#999999',alpha=0.1)
             best_params = self.mod_params_mcmc[:,0]
             best_params[4] = 1e-6 * best_params[4]
+            phase_rr010_freqinvsq_amp = lambda x, phi : rr010_freqinvsq_amp(x,\
+                    [best_params[0],best_params[1],best_params[2],best_params[3],\
+                    best_params[4],phi])
+            phase_opt, V = op.curve_fit(phase_rr010_freqinvsq_amp,\
+                    self.data.freq,self.data.rr010,bounds=(0,2*np.pi))
+            best_params[5] = phase_opt
             ax1.plot(freq_array,rr010_freqinvsq_amp(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
@@ -940,6 +958,12 @@ class GlitchModel(object):
                 ax1.plot(freq_array,rr010_freqinvpoly_amp(freq_array,mod_params),c='#999999',alpha=0.1)
             best_params = self.mod_params_mcmc[:,0]
             best_params[5] = 1e-6 * best_params[5]
+            phase_rr010_freqinvpoly_amp = lambda x, phi : rr010_freqinvpoly_amp(x,\
+                    [best_params[0],best_params[1],best_params[2],best_params[3],\
+                    best_params[4],best_params[5],phi])
+            phase_opt, V = op.curve_fit(phase_rr010_freqinvpoly_amp,\
+                    self.data.freq,self.data.rr010,bounds=(0,2*np.pi))
+            best_params[6] = phase_opt
             ax1.plot(freq_array,rr010_freqinvpoly_amp(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
@@ -1077,6 +1101,12 @@ class GlitchModel(object):
                 ax1.plot(freq_array,rr010_freqinvsq_amp_polyper(freq_array,mod_params),c='#999999',alpha=0.1)
             best_params = self.mod_params_mcmc[:,0]
             best_params[[4,7]] = 1e-6 * best_params[[4,7]]
+            phase_rr010_freqinvsq_amp_polyper = lambda x, phi, psi : rr010_freqinvsq_amp_polyper(x,\
+                    [best_params[0],best_params[1],best_params[2],best_params[3],\
+                    best_params[4],phi,best_params[6],best_params[7],psi])
+            phase_opt, V = op.curve_fit(phase_rr010_freqinvsq_amp_polyper,\
+                    self.data.freq,self.data.rr010,bounds=((0,0),(2*np.pi,2*np.pi)))
+            best_params[[5,8]] = phase_opt
             ax1.plot(freq_array,rr010_freqinvsq_amp_polyper(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'${rr}_{010}$')
@@ -1175,9 +1205,9 @@ def update_params(model,data):
     # Check if star_params are consistent with data
     # numax
     numax_backup = np.median(data.freq)
-    if not (0.9*numax_backup <= star_params["numax"] <= 1.1*numax_backup):
+    if not (0.85*numax_backup <= star_params["numax"] <= 1.15*numax_backup):
         star_params["numax"] = numax_backup
-        print(f"""Warning: numax in the star_params dictionary is more than 10%
+        print(f"""Warning: numax in the star_params dictionary is more than 15%
                 off the median mode frequency. numax has been set to
                 {star_params["numax"]}. Please consider updating it to the
                 right value in params.py""")
