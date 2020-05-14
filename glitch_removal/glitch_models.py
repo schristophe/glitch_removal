@@ -200,7 +200,7 @@ class GlitchModel(object):
         mod_params_mcmc = np.array([])
         p = np.percentile(self.samples, [50, 84, 16],axis=0)
         p[2,:] = p[2,:] - p[0,:]
-        p[1,:] = p[0,:] - p[1,:]
+        p[1,:] = p[1,:] - p[0,:]
         self.mod_params_mcmc = np.transpose(p)
 
     def log_and_plot(self):
@@ -225,31 +225,31 @@ class GlitchModel(object):
                     'c0 * exp(-c2*freq**2) * sin(4*pi*freq*tau_He+phi_He)\n\n')
             logfile.write('Results\n'+'_____________\n'+\
                     'a0\t'+str('%10.4e' % self.mod_params_mcmc[0][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[0][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[0][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[0][1])+'\n'+\
                     'a1\t'+str('%10.4e' % self.mod_params_mcmc[1][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[1][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[1][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[1][1])+'\n'+\
                     'b0\t'+str('%10.4e' % self.mod_params_mcmc[2][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[2][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[2][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[2][1])+'\n'+\
                     'tau_CE\t'+str('%10.2f' % self.mod_params_mcmc[3][0])+'\t'+\
-                    str('%10.2f' % -self.mod_params_mcmc[3][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[3][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[3][1])+'\n'+\
                     'phi_CE\t'+str('%10.4f' % self.mod_params_mcmc[4][0])+'\t'+\
-                    str('%10.4f' % -self.mod_params_mcmc[4][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[4][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[4][1])+'\n'+\
                     'c0\t'+str('%10.4e' % self.mod_params_mcmc[5][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[5][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[5][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[5][1])+'\n'+\
                     'c2\t'+str('%10.4e' % self.mod_params_mcmc[6][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[6][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[6][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[6][1])+'\n'+\
                     'tau_He\t'+str('%10.2f' % self.mod_params_mcmc[7][0])+'\t'+\
-                    str('%10.2f' % -self.mod_params_mcmc[7][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[7][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[7][1])+'\n'+\
                     'phi_He\t'+str('%10.4f' % self.mod_params_mcmc[8][0])+'\t'+\
-                    str('%10.4f' % -self.mod_params_mcmc[8][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[8][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[8][1])+'\n\n')
             logfile.write('emcee parameters\n'+'_____________\n'+\
                     'nwalkers\t'+str('%d' % emcee_params["nwalkers"])+'\n'+\
@@ -359,37 +359,37 @@ class GlitchModel(object):
                     '(c1 + c2/freq**2) * sin(4*pi*freq*tau_CE+phi_CE)\n\n')
             logfile.write('Results\n'+'_____________\n'+\
                     'a1\t'+str('%10.4e' % self.mod_params_mcmc[0][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[0][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[0][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[0][1])+'\n'+\
                     'a2\t'+str('%10.4e' % self.mod_params_mcmc[1][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[1][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[1][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[1][1])+'\n'+\
                     'a3\t'+str('%10.4e' % self.mod_params_mcmc[2][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[2][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[2][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[2][1])+'\n'+\
                     'b1\t'+str('%10.4e' % self.mod_params_mcmc[3][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[3][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[3][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[3][1])+'\n'+\
                     'b2\t'+str('%10.4e' % self.mod_params_mcmc[4][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[4][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[4][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[4][1])+'\n'+\
                     'tau_He\t'+str('%10.2f' % self.mod_params_mcmc[5][0])+'\t'+\
-                    str('%10.2f' % -self.mod_params_mcmc[5][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[5][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[5][1])+'\n'+\
                     'phi_He\t'+str('%10.4f' % self.mod_params_mcmc[6][0])+'\t'+\
-                    str('%10.4f' % -self.mod_params_mcmc[6][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[6][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[6][1])+'\n'+\
                     'c1\t'+str('%10.4e' % self.mod_params_mcmc[7][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[7][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[7][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[7][1])+'\n'+\
                     'c2\t'+str('%10.4e' % self.mod_params_mcmc[8][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[8][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[8][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[8][1])+'\n'+\
                     'tau_CE\t'+str('%10.2f' % self.mod_params_mcmc[9][0])+'\t'+\
-                    str('%10.2f' % -self.mod_params_mcmc[9][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[9][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[9][1])+'\n'+\
                     'phi_CE\t'+str('%10.4f' % self.mod_params_mcmc[10][0])+'\t'+\
-                    str('%10.4f' % -self.mod_params_mcmc[10][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[10][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[10][1])+'\n\n')
             logfile.write('emcee parameters\n'+'_____________\n'+\
                     'nwalkers\t'+str('%d' % emcee_params["nwalkers"])+'\n'+\
@@ -509,22 +509,22 @@ class GlitchModel(object):
                     'amp*sin(4*pi*freq*T_CE+phi_CE)\n\n')
             logfile.write('Results\n'+'_____________\n'+\
                     'c0\t'+str('%10.4e' % self.mod_params_mcmc[0][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[0][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[0][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[0][1])+'\n'+\
                     'c1\t'+str('%10.4e' % self.mod_params_mcmc[1][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[1][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[1][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[1][1])+'\n'+\
                     'c2\t'+str('%10.4e' % self.mod_params_mcmc[2][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[2][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[2][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[2][1])+'\n'+\
                     'amp\t'+str('%10.4e' % self.mod_params_mcmc[3][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[3][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[3][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[3][1])+'\n'+\
                     'T_CE'+str('%10.2f' % self.mod_params_mcmc[4][0])+'\t'+\
-                    str('%10.2f' % -self.mod_params_mcmc[4][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[4][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[4][1])+'\n'+\
                     'phi_CE'+str('%10.4f' % self.mod_params_mcmc[5][0])+'\t'+\
-                    str('%10.4f' % -self.mod_params_mcmc[5][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[5][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[5][1])+'\n\n')
             logfile.write('emcee parameters\n'+'_____________\n'+\
                     'nwalkers\t'+str('%d' % emcee_params["nwalkers"])+'\n'+\
@@ -626,22 +626,22 @@ class GlitchModel(object):
                     'amp*(freqref/freq)*sin(4*pi*freq*T_CE+phi_CE)\n\n')
             logfile.write('Results\n'+'_____________\n'+\
                     'c0\t'+str('%10.4e' % self.mod_params_mcmc[0][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[0][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[0][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[0][1])+'\n'+\
                     'c1\t'+str('%10.4e' % self.mod_params_mcmc[1][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[1][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[1][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[1][1])+'\n'+\
                     'c2\t'+str('%10.4e' % self.mod_params_mcmc[2][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[2][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[2][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[2][1])+'\n'+\
                     'amp\t'+str('%10.4e' % self.mod_params_mcmc[3][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[3][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[3][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[3][1])+'\n'+\
                     'T_CE'+str('%10.2f' % self.mod_params_mcmc[4][0])+'\t'+\
-                    str('%10.2f' % -self.mod_params_mcmc[4][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[4][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[4][1])+'\n'+\
                     'phi_CE'+str('%10.4f' % self.mod_params_mcmc[5][0])+'\t'+\
-                    str('%10.4f' % -self.mod_params_mcmc[5][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[5][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[5][1])+'\n\n')
             logfile.write('emcee parameters\n'+'_____________\n'+\
                     'nwalkers\t'+str('%d' % emcee_params["nwalkers"])+'\n'+\
@@ -743,22 +743,22 @@ class GlitchModel(object):
                     'amp*(freqref/freq)**2*sin(4*pi*freq*T_CE+phi_CE)\n\n')
             logfile.write('Results\n'+'_____________\n'+\
                     'c0\t'+str('%10.4e' % self.mod_params_mcmc[0][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[0][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[0][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[0][1])+'\n'+\
                     'c1\t'+str('%10.4e' % self.mod_params_mcmc[1][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[1][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[1][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[1][1])+'\n'+\
                     'c2\t'+str('%10.4e' % self.mod_params_mcmc[2][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[2][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[2][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[2][1])+'\n'+\
                     'amp\t'+str('%10.4e' % self.mod_params_mcmc[3][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[3][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[3][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[3][1])+'\n'+\
                     'T_CE'+str('%10.2f' % self.mod_params_mcmc[4][0])+'\t'+\
-                    str('%10.2f' % -self.mod_params_mcmc[4][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[4][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[4][1])+'\n'+\
                     'phi_CE'+str('%10.4f' % self.mod_params_mcmc[5][0])+'\t'+\
-                    str('%10.4f' % -self.mod_params_mcmc[5][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[5][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[5][1])+'\n\n')
             logfile.write('emcee parameters\n'+'_____________\n'+\
                     'nwalkers\t'+str('%d' % emcee_params["nwalkers"])+'\n'+\
@@ -861,25 +861,25 @@ class GlitchModel(object):
                     'sin(4*pi*freq*T_CE+phi_CE)'+'\n\n')
             logfile.write('Results\n'+'_____________\n'+\
                     'c0\t'+str('%10.4e' % self.mod_params_mcmc[0][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[0][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[0][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[0][1])+'\n'+\
                     'c1\t'+str('%10.4e' % self.mod_params_mcmc[1][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[1][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[1][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[1][1])+'\n'+\
                     'c2\t'+str('%10.4e' % self.mod_params_mcmc[2][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[2][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[2][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[2][1])+'\n'+\
                     'amp0\t'+str('%10.4e' % self.mod_params_mcmc[3][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[3][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[3][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[3][1])+'\n'+\
                     'amp1\t'+str('%10.4e' % self.mod_params_mcmc[4][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[4][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[4][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[4][1])+'\n'+\
                     'T_CE'+str('%10.2f' % self.mod_params_mcmc[5][0])+'\t'+\
-                    str('%10.2f' % -self.mod_params_mcmc[5][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[5][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[5][1])+'\n'+\
                     'phi1'+str('%10.4f' % self.mod_params_mcmc[6][0])+'\t'+\
-                    str('%10.4f' % -self.mod_params_mcmc[6][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[6][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[6][1])+'\n\n')
             logfile.write('emcee parameters\n'+'_____________\n'+\
                     'nwalkers\t'+str('%d' % emcee_params["nwalkers"])+'\n'+\
@@ -988,31 +988,31 @@ class GlitchModel(object):
                     '\n\n')
             logfile.write('Results\n'+'_____________\n'+\
                     'c0\t'+str('%10.4e' % self.mod_params_mcmc[0][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[0][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[0][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[0][1])+'\n'+\
                     'c1\t'+str('%10.4e' % self.mod_params_mcmc[1][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[1][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[1][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[1][1])+'\n'+\
                     'c2\t'+str('%10.4e' % self.mod_params_mcmc[2][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[2][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[2][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[2][1])+'\n'+\
                     'amp0\t'+str('%10.4e' % self.mod_params_mcmc[3][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[3][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[3][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[3][1])+'\n'+\
                     'T0'+str('%10.2f' % self.mod_params_mcmc[4][0])+'\t'+\
-                    str('%10.2f' % -self.mod_params_mcmc[4][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[4][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[4][1])+'\n'+\
                     'phi0'+str('%10.4f' % self.mod_params_mcmc[5][0])+'\t'+\
-                    str('%10.4f' % -self.mod_params_mcmc[5][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[5][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[5][1])+'\n'+\
                     'amp1\t'+str('%10.4e' % self.mod_params_mcmc[6][0])+'\t'+\
-                    str('%10.4e' % -self.mod_params_mcmc[6][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[6][2])+'\t'+\
                     str('%10.4e' % self.mod_params_mcmc[6][1])+'\n'+\
                     'T1'+str('%10.2f' % self.mod_params_mcmc[7][0])+'\t'+\
-                    str('%10.2f' % -self.mod_params_mcmc[7][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[7][2])+'\t'+\
                     str('%10.2f' % self.mod_params_mcmc[7][1])+'\n'+\
                     'phi1'+str('%10.4f' % self.mod_params_mcmc[8][0])+'\t'+\
-                    str('%10.4f' % -self.mod_params_mcmc[8][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[8][2])+'\t'+\
                     str('%10.4f' % self.mod_params_mcmc[8][1])+'\n\n')
             logfile.write('emcee parameters\n'+'_____________\n'+\
                     'nwalkers\t'+str('%d' % emcee_params["nwalkers"])+'\n'+\
