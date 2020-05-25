@@ -34,20 +34,39 @@ class GlitchModel(object):
             a_init, V = np.polyfit(self.data.freq,self.data.d2nu,1,cov=True)
             sig_a_init = np.sqrt(np.diag(V))
             res_osc = self.data.d2nu - np.polyval(a_init,self.data.freq)
-            tau_random_He = 0.5*(T_min+0.5*T0) + np.random.randn() * 0.5 * (0.5*T0-T_min)
-            tau_random_CE = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
+            tau_random_He = 0.5*(0.5*T_min+0.3*T0) + np.random.randn() * 0.5 * (0.3*T0-0.5*T_min)
+            tau_random_CE = 0.5*T0 + np.random.randn() * 0.2 * T0
             c2_random = 5e-7
-            ig0 = [a_init[1],a_init[0],0.1*res_osc.max()*star_params["numax"]**2,\
-                    tau_random_CE,np.pi,res_osc.max()/star_params["numax"],\
+            ig0 = [a_init[1],a_init[0],0.1*res_osc.max(),\
+                    tau_random_CE,np.pi,10*res_osc.max(),\
                     c2_random,tau_random_He,np.pi]
-            self.bds = ((a_init[1]-3*sig_a_init[1],a_init[1]+3*sig_a_init[1]),\
-                    (a_init[0]-3*sig_a_init[0],a_init[0]+3*sig_a_init[0]),\
-                    (0,res_osc.max()*star_params["numax"]**2),
-                    (2*T_min, T0),\
+            self.bds = ((a_init[1]-5*sig_a_init[1],a_init[1]+5*sig_a_init[1]),\
+                    (a_init[0]-5*sig_a_init[0],a_init[0]+5*sig_a_init[0]),\
+                    (1e-2,1),
+                    (0.3*T0, 0.7*T0),\
                     (-2*np.pi,4*np.pi),
-                    (0.1*res_osc.max()/star_params["numax"],2*res_osc.max()/star_params["numax"]),\
-                    (4e-8,8e-6),\
-                    (T_min, 0.5*T0),
+                    (0.1*res_osc.max(),100*res_osc.max()),\
+                    (1e-7,4e-6),\
+                    (0.5*T_min, 0.3*T0),
+                    (-2*np.pi,4*np.pi))
+            nll = lambda *args: -lnlikelihood_d2nu(*args)
+        elif self.model == d2nu_mazumdar:
+            a_init, V = np.polyfit(self.data.freq,self.data.d2nu,0,cov=True)
+            sig_a_init = np.sqrt(np.diag(V))
+            res_osc = self.data.d2nu - np.polyval(a_init,self.data.freq)
+            tau_random_He = 0.5*(0.5*T_min+0.3*T0) + np.random.randn() * 0.5 * (0.3*T0-0.5*T_min)
+            tau_random_CE = 0.5*T0 + np.random.randn() * 0.2 * T0
+            c2_random = 5e-7
+            ig0 = [a_init[0],0.1*res_osc.max(),\
+                    tau_random_CE,np.pi,10*res_osc.max(),\
+                    c2_random,tau_random_He,np.pi]
+            self.bds = ((a_init[0]-5*sig_a_init[0],a_init[0]+5*sig_a_init[0]),\
+                    (1e-2,1),
+                    (0.3*T0, 0.7*T0),\
+                    (-2*np.pi,4*np.pi),
+                    (0.1*res_osc.max(),100*res_osc.max()),\
+                    (1e-7,4e-6),\
+                    (0.5*T_min, 0.3*T0),
                     (-2*np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_d2nu(*args)
         elif self.model == d2nu_basu:
@@ -177,6 +196,9 @@ class GlitchModel(object):
         if self.model == d2nu_verma:
             sampler.chain[:,:,[4,8]] = np.mod(sampler.chain[:,:,[4,8]],2*np.pi) # fold the phases on the [0,2pi] interval
             sampler.chain[:,:,[3,7]] = 1e6 * sampler.chain[:,:,[3,7]]   # convert acoustic depth in seconds
+        elif self.model == d2nu_mazumdar:
+            sampler.chain[:,:,[3,7]] = np.mod(sampler.chain[:,:,[3,7]],2*np.pi) # fold the phases on the [0,2pi] interval
+            sampler.chain[:,:,[2,6]] = 1e6 * sampler.chain[:,:,[2,6]]   # convert acoustic depth in seconds
         elif self.model == d2nu_basu:
             sampler.chain[:,:,[6,10]] = np.mod(sampler.chain[:,:,[6,10]],2*np.pi)
             sampler.chain[:,:,[5,9]] = 1e6 * sampler.chain[:,:,[5,9]]
@@ -266,7 +288,7 @@ class GlitchModel(object):
             labels = ['$a_0$','$a_1$','$b_0$',r'$\tau_{\rm CE}$',\
                     r'$\phi_{\rm CE}$','$c_0$','$c_2$',r'$\tau_{\rm He}$',\
                     r'$\phi_{\rm He}$']
-            fig_corner = corner.corner(self.samples,labels=labels)
+            fig_corner = corner.corner(self.samples,labels=labels,quantiles=[0.16, 0.5, 0.84], show_titles=True)
             # Walkers position
             walkers_redux = np.percentile(self.sampler.chain, [1, 50, 99],axis=0)
             nsteps_tab = np.arange(1,emcee_params["nsteps"]+1)
@@ -336,6 +358,12 @@ class GlitchModel(object):
                 ax1.plot(freq_array,d2nu_verma(freq_array,mod_params),c='#999999',alpha=0.1)
             best_params = self.mod_params_mcmc[:,0]
             best_params[[3,7]] = 1e-6 * best_params[[3,7]]
+            phase_d2nu_verma = lambda x, phi, psi : d2nu_verma(x,\
+                    [best_params[0],best_params[1],best_params[2],best_params[3],\
+                    phi,best_params[5],best_params[6],best_params[7],psi])
+            phase_opt, V = op.curve_fit(phase_d2nu_verma,\
+                    self.data.freq,self.data.d2nu,bounds=((0,0),(2*np.pi,2*np.pi)))
+            best_params[[4,8]] = phase_opt
             ax1.plot(freq_array,d2nu_verma(freq_array,best_params),color=colors[3])
             ax1.set_xlabel(r'Frequency ($\mu$Hz)')
             ax1.set_ylabel(r'$\Delta_2 \nu$ $(\mu Hz)$')
@@ -347,7 +375,140 @@ class GlitchModel(object):
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
             ax2.set_xlabel(r'Frequency ($\mu$Hz)')
-            ax2.set_ylabel(r'$\delta{rr}_{010}$')
+            ax2.set_ylabel(r'$\delta\Delta_2 \nu$ $(\mu Hz)$')
+        elif self.model == d2nu_mazumdar:
+            model_name = 'd2nu_mazumdar'
+            # Log file
+            logfile = open(directory+save_params["nameplate"]+'_'+model_name+'.log',"w")
+            logfile.write('Glitch fitting with glitch_removal\n'+
+                    'Glitch model: '+model_name+'\n'+
+                    'a0 + ' +\
+                    '(b0/freq**2)*sin(4*pi*freq*tau_CE+phi_CE) + ' + \
+                    'c0 * exp(-c2*freq**2) * sin(4*pi*freq*tau_He+phi_He)\n\n')
+            logfile.write('Results\n'+'_____________\n'+\
+                    'a0\t'+str('%10.4e' % self.mod_params_mcmc[0][0])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[0][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[0][1])+'\n'+\
+                    'b0\t'+str('%10.4e' % self.mod_params_mcmc[1][0])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[1][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[1][1])+'\n'+\
+                    'tau_CE\t'+str('%10.2f' % self.mod_params_mcmc[2][0])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[2][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[2][1])+'\n'+\
+                    'phi_CE\t'+str('%10.4f' % self.mod_params_mcmc[3][0])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[3][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[3][1])+'\n'+\
+                    'c0\t'+str('%10.4e' % self.mod_params_mcmc[4][0])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[4][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[4][1])+'\n'+\
+                    'c2\t'+str('%10.4e' % self.mod_params_mcmc[5][0])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[5][2])+'\t'+\
+                    str('%10.4e' % self.mod_params_mcmc[5][1])+'\n'+\
+                    'tau_He\t'+str('%10.2f' % self.mod_params_mcmc[6][0])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[6][2])+'\t'+\
+                    str('%10.2f' % self.mod_params_mcmc[6][1])+'\n'+\
+                    'phi_He\t'+str('%10.4f' % self.mod_params_mcmc[7][0])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[7][2])+'\t'+\
+                    str('%10.4f' % self.mod_params_mcmc[7][1])+'\n\n')
+            logfile.write('emcee parameters\n'+'_____________\n'+\
+                    'nwalkers\t'+str('%d' % emcee_params["nwalkers"])+'\n'+\
+                    'nburns\t'+str('%d' % emcee_params["nburns"])+'\n'+\
+                    'nsteps\t'+str('%d' % emcee_params["nsteps"])+'\n\n')
+            logfile.write('fit parameters\n'+'_____________\n'+\
+                    'freqref\t'+str('%10.2f' % fit_params["freqref"])+'\n'+\
+                    'nsvd\t'+str('%d' % fit_params["nsvd"])+'\n\n')
+            logfile.write('star parameters\n'+'_____________\n'+\
+                    'delta_nu\t'+str('%10.2f' % star_params["delta_nu"])+'\n'+\
+                    'numax\t'+str('%10.2f' % star_params["numax"]))
+            logfile.close()
+            # Corner plot
+            labels = ['$a_0$','$b_0$',r'$\tau_{\rm CE}$',\
+                    r'$\phi_{\rm CE}$','$c_0$','$c_2$',r'$\tau_{\rm He}$',\
+                    r'$\phi_{\rm He}$']
+            fig_corner = corner.corner(self.samples,labels=labels,quantiles=[0.16, 0.5, 0.84], show_titles=True)
+            # Walkers position
+            walkers_redux = np.percentile(self.sampler.chain, [1, 50, 99],axis=0)
+            nsteps_tab = np.arange(1,emcee_params["nsteps"]+1)
+            fig_walkers = plt.figure(figsize=(10,25))
+            gs = gridspec.GridSpec(8,1)
+            ax1 = fig_walkers.add_subplot(gs[0,0])
+            ax2 = fig_walkers.add_subplot(gs[1,0])
+            ax3 = fig_walkers.add_subplot(gs[2,0])
+            ax4 = fig_walkers.add_subplot(gs[3,0])
+            ax5 = fig_walkers.add_subplot(gs[4,0])
+            ax6 = fig_walkers.add_subplot(gs[5,0])
+            ax7 = fig_walkers.add_subplot(gs[6,0])
+            ax8 = fig_walkers.add_subplot(gs[7,0])
+            #
+            ax1.fill_between(nsteps_tab,walkers_redux[0,:,0],walkers_redux[2,:,0],color='#b5b5b5',alpha=0.5)
+            ax1.plot(nsteps_tab,walkers_redux[1,:,0],lw=2)
+            ax1.set_ylabel(labels[0])
+            #
+            ax2.fill_between(nsteps_tab,walkers_redux[0,:,1],walkers_redux[2,:,1],color='#b5b5b5',alpha=0.5)
+            ax2.plot(nsteps_tab,walkers_redux[1,:,1],lw=2)
+            ax2.set_ylabel(labels[1])
+            #
+            ax3.fill_between(nsteps_tab,walkers_redux[0,:,2],walkers_redux[2,:,2],color='#b5b5b5',alpha=0.5)
+            ax3.plot(nsteps_tab,walkers_redux[1,:,2],lw=2)
+            ax3.set_ylabel(labels[2])
+            #
+            ax4.fill_between(nsteps_tab,walkers_redux[0,:,3],walkers_redux[2,:,3],color='#b5b5b5',alpha=0.5)
+            ax4.plot(nsteps_tab,walkers_redux[1,:,3],lw=2)
+            ax4.set_ylabel(labels[3])
+            #
+            ax5.fill_between(nsteps_tab,walkers_redux[0,:,4],walkers_redux[2,:,4],color='#b5b5b5',alpha=0.5)
+            ax5.plot(nsteps_tab,walkers_redux[1,:,4],lw=2)
+            ax5.set_ylabel(labels[4])
+            #
+            ax6.fill_between(nsteps_tab,walkers_redux[0,:,5],walkers_redux[2,:,5],color='#b5b5b5',alpha=0.5)
+            ax6.plot(nsteps_tab,walkers_redux[1,:,5],lw=2)
+            ax6.set_ylabel(labels[5])
+            #
+            ax7.fill_between(nsteps_tab,walkers_redux[0,:,6],walkers_redux[2,:,6],color='#b5b5b5',alpha=0.5)
+            ax7.plot(nsteps_tab,walkers_redux[1,:,6],lw=2)
+            ax7.set_ylabel(labels[6])
+            #
+            ax8.fill_between(nsteps_tab,walkers_redux[0,:,7],walkers_redux[2,:,7],color='#b5b5b5',alpha=0.5)
+            ax8.plot(nsteps_tab,walkers_redux[1,:,7],lw=2)
+            ax8.set_ylabel(labels[7])
+            #
+            ax8.set_xlabel(r'$n_{\rm steps}$')
+            # Results in the observed plane
+            freq_array = np.linspace(self.data.freq.min(),self.data.freq.max(),100)
+            fig_result = plt.figure()
+            gs = gridspec.GridSpec(3,1)
+            ax1 = fig_result.add_subplot(gs[:2,0])
+            markers = ['o','^','s']
+            for l in np.arange(3):
+                i_l = self.data.l == l
+                ax1.errorbar(self.data.freq[i_l],self.data.d2nu[i_l],
+                        yerr=self.data.err[i_l],fmt=markers[l],
+                        mfc=colors[l],mec='none',ecolor='#c4c4c4',
+                        label=r'$\ell = {}$'.format(l))
+            plt.legend()
+            for mod_params in self.samples[np.random.randint(len(self.samples), size=100)]:
+                mod_params[[2,6]] = 1e-6 * mod_params[[2,6]]
+                ax1.plot(freq_array,d2nu_mazumdar(freq_array,mod_params),c='#999999',alpha=0.1)
+            best_params = self.mod_params_mcmc[:,0]
+            best_params[[2,6]] = 1e-6 * best_params[[2,6]]
+            phase_d2nu_mazumdar = lambda x, phi, psi : d2nu_mazumdar(x,\
+                    [best_params[0],best_params[1],best_params[2],\
+                    phi,best_params[4],best_params[5],best_params[6],psi])
+            phase_opt, V = op.curve_fit(phase_d2nu_mazumdar,\
+                    self.data.freq,self.data.d2nu,bounds=((0,0),(2*np.pi,2*np.pi)))
+            best_params[[3,7]] = phase_opt
+            ax1.plot(freq_array,d2nu_mazumdar(freq_array,best_params),color=colors[3])
+            ax1.set_xlabel(r'Frequency ($\mu$Hz)')
+            ax1.set_ylabel(r'$\Delta_2 \nu$ $(\mu Hz)$')
+            ax2 = fig_result.add_subplot(gs[2,0])
+            for l in np.arange(3):
+                i_l = self.data.l == l
+                ax2.errorbar(self.data.freq[i_l],self.data.d2nu[i_l]-d2nu_mazumdar(self.data.freq[i_l],mod_params),
+                        yerr=self.data.err[i_l],fmt=markers[l],
+                        mfc=colors[l],mec='none',ecolor='#c4c4c4',
+                        label=r'$\ell = {}$'.format(l))
+            ax2.set_xlabel(r'Frequency ($\mu$Hz)')
+            ax2.set_ylabel(r'$\delta\Delta_2 \nu$ $(\mu Hz)$')
         elif self.model == d2nu_basu:
             model_name = 'd2nu_basu'
             # Log file
@@ -406,7 +567,7 @@ class GlitchModel(object):
             labels = ['$a_1$','$a_2$','$a_3$','$b_1$','$b_2$',\
                     r'$\tau_{\rm He}$',r'$\phi_{\rm He}$',\
                     '$c_1$','$c_2$',r'$\tau_{\rm CE}$',r'$\phi_{\rm CE}$']
-            fig_corner = corner.corner(self.samples,labels=labels)
+            fig_corner = corner.corner(self.samples,labels=labels,quantiles=[0.16, 0.5, 0.84], show_titles=True)
             # Walkers position
             walkers_redux = np.percentile(self.sampler.chain, [1, 50, 99],axis=0)
             nsteps_tab = np.arange(1,emcee_params["nsteps"]+1)
@@ -497,7 +658,7 @@ class GlitchModel(object):
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
             ax2.set_xlabel(r'Frequency ($\mu$Hz)')
-            ax2.set_ylabel(r'$\delta{rr}_{010}$')
+            ax2.set_ylabel(r'$\delta\Delta_2 \nu$ $(\mu Hz)$')
         # elif self.model == d2nu_houdek:
         elif self.model == rr010_const_amp:
             model_name = 'rr010_const_amp'
@@ -543,7 +704,7 @@ class GlitchModel(object):
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
                     '$A$',r'$T_{\rm CE}$',r'$\phi_{\rm CE}$']
-            fig_corner = corner.corner(self.samples,labels=labels)
+            fig_corner = corner.corner(self.samples,labels=labels,quantiles=[0.16, 0.5, 0.84], show_titles=True)
             # Walkers position
             walkers_redux = np.percentile(self.sampler.chain, [1, 50, 99],axis=0)
             nsteps_tab = np.arange(1,emcee_params["nsteps"]+1)
@@ -660,7 +821,7 @@ class GlitchModel(object):
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
                     '$A$',r'$T_{\rm CE}$',r'$\phi_{\rm CE}$']
-            fig_corner = corner.corner(self.samples,labels=labels)
+            fig_corner = corner.corner(self.samples,labels=labels,quantiles=[0.16, 0.5, 0.84], show_titles=True)
             # Walkers position
             walkers_redux = np.percentile(self.sampler.chain, [1, 50, 99],axis=0)
             nsteps_tab = np.arange(1,emcee_params["nsteps"]+1)
@@ -777,7 +938,7 @@ class GlitchModel(object):
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
                     '$A$',r'$T_{\rm CE}$',r'$\phi_{\rm CE}$']
-            fig_corner = corner.corner(self.samples,labels=labels)
+            fig_corner = corner.corner(self.samples,labels=labels, quantiles=[0.16, 0.5, 0.84], show_titles=True)
             # Walkers position
             walkers_redux = np.percentile(self.sampler.chain, [1, 50, 99],axis=0)
             nsteps_tab = np.arange(1,emcee_params["nsteps"]+1)
@@ -898,7 +1059,7 @@ class GlitchModel(object):
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
                     '$A_0$','$A_1$',r'$T_{\rm CE}$',r'$\phi_{\rm CE}$']
-            fig_corner = corner.corner(self.samples,labels=labels)
+            fig_corner = corner.corner(self.samples,labels=labels, quantiles=[0.16, 0.5, 0.84], show_titles=True)
             # Walkers position
             walkers_redux = np.percentile(self.sampler.chain, [1, 50, 99],axis=0)
             nsteps_tab = np.arange(1,emcee_params["nsteps"]+1)
@@ -1031,7 +1192,7 @@ class GlitchModel(object):
             # Corner plot
             labels = ['$c_0$','$c_1$','$c_2$',\
                     '$A_0$',r'$T_0$',r'$\phi_0$','$A_1$',r'$T_1$',r'$\phi_1$']
-            fig_corner = corner.corner(self.samples,labels=labels)
+            fig_corner = corner.corner(self.samples,labels=labels, quantiles=[0.16, 0.5, 0.84], show_titles=True)
             # Walkers position
             walkers_redux = np.percentile(self.sampler.chain, [1, 50, 99],axis=0)
             nsteps_tab = np.arange(1,emcee_params["nsteps"]+1)
@@ -1126,13 +1287,20 @@ class GlitchModel(object):
 
 # List of models to represent glitches in different seismic indicators
 
+
 def d2nu_verma(x,args):
     """ Functional form used by Verma et al. 2017 to model second
         differences D2nu. """
     return args[0] + args[1]*x + \
-            (args[2]/x**2)*np.sin(4*np.pi*x*args[3]+args[4]) + \
-            args[5]*x*np.exp(-args[6]*x**2)*np.sin(4*np.pi*x*args[7]+args[8])
+            args[2]*(fit_params["freqref"]/x)**2*np.sin(4*np.pi*x*args[3]+args[4]) + \
+            args[5]*(x/fit_params["freqref"])*np.exp(-args[6]*x**2)*np.sin(4*np.pi*x*args[7]+args[8])
 
+def d2nu_mazumdar(x,args):
+    """ Functional form used by Mazumdar et al. 2014 to model second
+        differences D2nu (Method A). """
+    return args[0] + \
+            args[1]*(fit_params["freqref"]/x)**2*np.sin(4*np.pi*x*args[2]+args[3]) + \
+            args[4]*(x/fit_params["freqref"])*np.exp(-args[5]*x**2)*np.sin(4*np.pi*x*args[6]+args[7])
 
 def d2nu_basu(x,args):
     """ Functional form used by Basu et al. 2004 to model second
@@ -1191,6 +1359,8 @@ def update_params(model,data):
     # Update emcee_params to suit the chosen glitch model
     if model == d2nu_verma:
         emcee_params["ndim"] = 9
+    elif model == d2nu_mazumdar:
+        emcee_params["ndim"] = 8
     elif model == d2nu_basu:
         emcee_params["ndim"] = 11
     # elif model == d2nu_houdek:
@@ -1251,6 +1421,19 @@ def lnprior_d2nu_verma(params,bds):
             bds[6][0] < c2 < bds[6][1] and \
             bds[7][0] < tau_He < bds[7][1] and \
             bds[8][0] < phi_He < bds[8][1]:
+        return 0.0
+    return -np.inf
+
+def lnprior_d2nu_mazumdar(params,bds):
+    a0, b0, tau_CE, phi_CE, c0, c2, tau_He, phi_He = params
+    if bds[0][0] < a0 < bds[0][1] and \
+            bds[1][0] < b0 < bds[1][1] and \
+            bds[2][0] < tau_CE < bds[2][1] and \
+            bds[3][0] < phi_CE < bds[3][1] and \
+            bds[4][0] < c0 < bds[4][1] and \
+            bds[5][0] < c2 < bds[5][1] and \
+            bds[6][0] < tau_He < bds[6][1] and \
+            bds[7][0] < phi_He < bds[7][1]:
         return 0.0
     return -np.inf
 
@@ -1340,6 +1523,12 @@ def lnprob_d2nu_verma(params,model,data,bds):
         return -np.inf
     return lp + lnlikelihood_d2nu(params,model,data)
 
+def lnprob_d2nu_mazumdar(params,model,data,bds):
+    lp = lnprior_d2nu_mazumdar(params,bds)
+    if not np.isfinite(lp):
+        return -np.inf
+    return lp + lnlikelihood_d2nu(params,model,data)
+
 def lnprob_d2nu_basu(params,model,data,bds):
     lp = lnprior_d2nu_basu(params,bds)
     if not np.isfinite(lp):
@@ -1391,6 +1580,8 @@ def select_prob(model):
         probability function based on the model selected """
     if model == d2nu_verma:
         return lnprob_d2nu_verma
+    elif model == d2nu_mazumdar:
+        return lnprob_d2nu_mazumdar
     elif model == d2nu_basu:
         return lnprob_d2nu_basu
     # elif model == d2nu_houdek:
