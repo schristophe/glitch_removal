@@ -60,8 +60,22 @@ class D2nuTable(object):
         self.cut_range_table = D2nuTable()
         self.cut_range_table.create(l_kept,n_kept,freq_kept,d2nu_kept,err_kept,matcov_kept)
 
-
+    def cut_l(self,l):
+        """ Keep only data points that have their angular degree != l. """
+        i_kept = np.argwhere(self.l != l)[:,0]
+        l_kept, n_kept, freq_kept, d2nu_kept, err_kept = \
+                self.l[i_kept], self.n[i_kept], self.freq[i_kept], \
+                self.d2nu[i_kept],self.err[i_kept]
+        matcov_kept = self.matcov[i_kept,:][:,i_kept]
     # Methods related to the covariance matrix
+        # sort data points by increasing mode frequency
+        i_sort = np.argsort(freq_kept)
+        l_kept, n_kept, freq_kept, d2nu_kept, err_kept = \
+                l_kept[i_sort], n_kept[i_sort], freq_kept[i_sort], \
+                d2nu_kept[i_sort], err_kept[i_sort]
+        matcov_kept = matcov_kept[i_sort,:][:,i_sort]
+        self.cut_l_table = D2nuTable()
+        self.cut_l_table.create(l_kept,n_kept,freq_kept,d2nu_kept,err_kept,matcov_kept)
 
     def matcov_condnumber(self):
         """ Get the condition number of self.matcov """
