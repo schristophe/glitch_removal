@@ -136,8 +136,8 @@ class GlitchModel(object):
             self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
                     (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
                     (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
-                    (1e-5,3*res_osc.max()),\
-                    (T_min,T0-T_min),\
+                    (5e-5,3*res_osc.max()),\
+                    (T_min,T0-2*T_min),\
                     (-2*np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_rr010(*args)
         elif self.model == rr010_freqinvpoly_amp:
@@ -370,12 +370,14 @@ class GlitchModel(object):
             ax2 = fig_result.add_subplot(gs[2,0])
             for l in np.arange(3):
                 i_l = self.data.l == l
-                ax2.errorbar(self.data.freq[i_l],self.data.d2nu[i_l]-d2nu_verma(self.data.freq[i_l],mod_params),
+                ax2.errorbar(self.data.freq[i_l],self.data.d2nu[i_l]-d2nu_verma(self.data.freq[i_l],best_params),
                         yerr=self.data.err[i_l],fmt=markers[l],
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
             ax2.set_xlabel(r'Frequency ($\mu$Hz)')
             ax2.set_ylabel(r'$\delta\Delta_2 \nu$ $(\mu Hz)$')
+            res = self.data.d2nu - d2nu_verma(self.data.freq,best_params)
+            ax2.set_ylim([0.8*res.min(), 1.2*res.max()])
         elif self.model == d2nu_mazumdar:
             model_name = 'd2nu_mazumdar'
             # Log file
@@ -503,12 +505,14 @@ class GlitchModel(object):
             ax2 = fig_result.add_subplot(gs[2,0])
             for l in np.arange(3):
                 i_l = self.data.l == l
-                ax2.errorbar(self.data.freq[i_l],self.data.d2nu[i_l]-d2nu_mazumdar(self.data.freq[i_l],mod_params),
+                ax2.errorbar(self.data.freq[i_l],self.data.d2nu[i_l]-d2nu_mazumdar(self.data.freq[i_l],best_params),
                         yerr=self.data.err[i_l],fmt=markers[l],
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
             ax2.set_xlabel(r'Frequency ($\mu$Hz)')
             ax2.set_ylabel(r'$\delta\Delta_2 \nu$ $(\mu Hz)$')
+            res = self.data.d2nu - d2nu_mazumdar(self.data.freq,best_params)
+            ax2.set_ylim([0.8*res.min(), 1.2*res.max()])
         elif self.model == d2nu_basu:
             model_name = 'd2nu_basu'
             # Log file
@@ -653,7 +657,7 @@ class GlitchModel(object):
             ax2 = fig_result.add_subplot(gs[2,0])
             for l in np.arange(3):
                 i_l = self.data.l == l
-                ax2.errorbar(self.data.freq[i_l],self.data.d2nu[i_l]-d2nu_basu(self.data.freq[i_l],mod_params),
+                ax2.errorbar(self.data.freq[i_l],self.data.d2nu[i_l]-d2nu_basu(self.data.freq[i_l],best_params),
                         yerr=self.data.err[i_l],fmt=markers[l],
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
@@ -771,7 +775,7 @@ class GlitchModel(object):
             ax2 = fig_result.add_subplot(gs[2,0])
             for l in np.arange(2):
                 i_l = self.data.l == l
-                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_const_amp(self.data.freq[i_l],mod_params),
+                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_const_amp(self.data.freq[i_l],best_params),
                         yerr=self.data.err[i_l],fmt=markers[l],
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
@@ -888,7 +892,7 @@ class GlitchModel(object):
             ax2 = fig_result.add_subplot(gs[2,0])
             for l in np.arange(2):
                 i_l = self.data.l == l
-                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinv_amp(self.data.freq[i_l],mod_params),
+                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinv_amp(self.data.freq[i_l],best_params),
                         yerr=self.data.err[i_l],fmt=markers[l],
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
@@ -1005,7 +1009,7 @@ class GlitchModel(object):
             ax2 = fig_result.add_subplot(gs[2,0])
             for l in np.arange(2):
                 i_l = self.data.l == l
-                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinvsq_amp(self.data.freq[i_l],mod_params),
+                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinvsq_amp(self.data.freq[i_l],best_params),
                         yerr=self.data.err[i_l],fmt=markers[l],
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
@@ -1131,7 +1135,7 @@ class GlitchModel(object):
             ax2 = fig_result.add_subplot(gs[2,0])
             for l in np.arange(2):
                 i_l = self.data.l == l
-                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinvpoly_amp(self.data.freq[i_l],mod_params),
+                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinvpoly_amp(self.data.freq[i_l],best_params),
                         yerr=self.data.err[i_l],fmt=markers[l],
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
@@ -1274,7 +1278,7 @@ class GlitchModel(object):
             ax2 = fig_result.add_subplot(gs[2,0])
             for l in np.arange(2):
                 i_l = self.data.l == l
-                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinvsq_amp_polyper(self.data.freq[i_l],mod_params),
+                ax2.errorbar(self.data.freq[i_l],self.data.rr010[i_l]-rr010_freqinvsq_amp_polyper(self.data.freq[i_l],best_params),
                         yerr=self.data.err[i_l],fmt=markers[l],
                         mfc=colors[l],mec='none',ecolor='#c4c4c4',
                         label=r'$\ell = {}$'.format(l))
