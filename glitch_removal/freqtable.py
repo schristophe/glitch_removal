@@ -11,22 +11,17 @@ from .params import *
 class FreqTable(object):
     """ Representing a table of frequencies """
 
-    def __init__(self,path,ufreqs=u.microHertz,coll=0,coln=1,colfreq=2,colerr=3):
+    def __init__(self):
         """ Initialise an instance of FreqTable """
-        self.path = path    # path to the frequency data
-        self.coll = coll    # column degree l
-        self.coln = coln    # column radial order n
-        self.colfreq = colfreq    # column frequencies
-        self.colerr = colerr    # column frequency errors
 
-    def load(self):
+    def load(self, path, coll=0, coln=1, colfreq=2, colerr=3):
         """ Load frequency data from self.path """
-        datafreq = np.genfromtxt(self.path)
-        self.l = datafreq[:,self.coll]
-        self.n = datafreq[:,self.coln]
-        self.freq = datafreq[:,self.colfreq]
-        if self.colerr != -1:
-            self.freqerr = datafreq[:,self.colerr]
+        datafreq = np.genfromtxt(path)
+        self.l = datafreq[:,coll]
+        self.n = datafreq[:,coln]
+        self.freq = datafreq[:,colfreq]
+        if colerr != -1:
+            self.freqerr = datafreq[:,colerr]
 
     def calc_d2nu(self):
         """ Compute seconde differences from frequency data """
