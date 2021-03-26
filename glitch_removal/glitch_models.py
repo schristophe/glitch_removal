@@ -14,18 +14,54 @@ prop_cycle = plt.rcParams['axes.prop_cycle']
 colors = prop_cycle.by_key()['color']
 
 class GlitchModel(object):
-    """ Class to represent a model for acoustic glitches """
+    """ Class to represent a model for acoustic glitches.
+
+    Implemented glitch models are:
+        * d2nu_verma
+        * d2nu_mazumdar
+        * d2nu_basu
+        * rr010_const_amp
+        * rr010_freqinv_amp
+        * rr010_freqinvsq_amp
+        * rr010_freqinvpoly_amp
+        * rr010_freqinvsq_amp_polyper
+
+    Attributes:
+        model (function):
+            Function to be fitted to the ratios rr010 or the second differences.
+            Must be one of the models implemented in glitch_removal.
+        data (D2nuTable or rr010Table):
+            Data to be fitted. Must be either the ratios rr010 or the second
+            differences.
+        prob (function): Posterior probability function.
+        bds (tuple): Boundaries for the model parameters.
+        ig0 (np.array): Initial guess for the model parameters.
+        sampler (emcee.ensemble.EnsembleSampler): Ensemble MCMC sampler.
+        samples (np.array): Samples of the posterior probability.
+        mod_params_mcmc (np.array):
+            Final parameter values and their uncertainties.
+
+    """
 
     def __init__(self,model,data):
-        """ Initialise an instance of GlitchModel """
+        """ Initialises an instance of GlitchModel.
+
+        Args:
+            model (function):
+                Function to be fitted to the ratios or second differences. Must
+                be one of the models implemented in glitch_removal.
+            data (D2nuTable or rr010Table):
+                Data to be fitted. Must be either the ratios rr010 or the second
+                differences.
+        """
         self.model = model
         self.data = data
         update_params(self.model,self.data)
         self.prob = select_prob(self.model)
 
     def initial_guess(self):
-        """ Find an initial guess and appropriate boundaries for the
-            parameters """
+        """ Finds an initial guess and appropriate boundaries for the glitch
+            parameters. """
         # minimum detectable value for the acoustic location of the glitch
         T_min = 0.5*(self.data.freq.max() - self.data.freq.min())**-1
         # total acoustic radius
@@ -118,11 +154,11 @@ class GlitchModel(object):
             res_osc = self.data.rr010 - smooth_component_rr010_freqinv_amp(self.data.freq,c_init[0],c_init[1],c_init[2])
             T_random = 0.5*(T_min+T0) + np.random.randn() * 0.5 * (T0-T_min)
             ig0 = [c_init[0],c_init[1],c_init[2],res_osc.max(),T_random,np.pi]
-            self.bds = ((c_init[0]-3*sig_c_init[0],c_init[0]+3*sig_c_init[0]),\
-                    (c_init[1]-5*sig_c_init[1],c_init[1]+5*sig_c_init[1]),\
-                    (c_init[2]-10*sig_c_init[2],c_init[2]+10*sig_c_init[2]),\
+            self.bds = ((c_init[0]-5*sig_c_init[0],c_init[0]+5*sig_c_init[0]),\
+                    (c_init[1]-10*sig_c_init[1],c_init[1]+10*sig_c_init[1]),\
+                    (c_init[2]-20*sig_c_init[2],c_init[2]+20*sig_c_init[2]),\
                     (1e-5,3*res_osc.max()),\
-                    (2*T_min,T0-2*T_min),\
+                    (T_min,T0-2*T_min),\
                     (-2*np.pi,4*np.pi))
             nll = lambda *args: -lnlikelihood_rr010(*args)
         elif self.model == rr010_freqinvsq_amp:
@@ -180,7 +216,7 @@ class GlitchModel(object):
 
 
     def setup_smooth_component(self):
-        """ Ensure the fitted coefficients of the polynomial in rr010 models
+        """ Ensures the fitted coefficients of the polynomial in rr010 models
         will not be correlated by setting the value of beta, gamma1 and gamma2.
         See Appendix B of Deheuvels et al. 2016 for more information. """
         fit_params["beta"], fit_params["gamma1"], fit_params["gamma2"] = \
@@ -188,7 +224,7 @@ class GlitchModel(object):
 
 
     def run_mcmc(self):
-        """ Run the MCMC sampling of the posterior probability function """
+        """ Runs the MCMC sampling of the posterior probability function. """
         pos = [self.ig0 + 1e-4*self.ig0*np.random.randn(emcee_params["ndim"]) for i in range(emcee_params["nwalkers"])]
         sampler = emcee.EnsembleSampler(emcee_params["nwalkers"], emcee_params["ndim"],self.prob, args=(self.model,self.data,self.bds))
         sampler.run_mcmc(pos,emcee_params["nsteps"])
@@ -225,8 +261,8 @@ class GlitchModel(object):
         p[1,:] = p[1,:] - p[0,:]
         self.mod_params_mcmc = np.transpose(p)
 
-    def log_and_plot(self):
-        """ Save a log file with model parameter estimates and plot/save the
+    def log_and_plot(self, what2save=[]):
+        """ Saves a log file with model parameter estimates and plot/save the
             corner plot, the evolution of the walkers position and the
             result of the sampling in the observed plane. """
         if save_params["directory"] == '':
@@ -1287,6 +1323,9 @@ class GlitchModel(object):
         fig_corner.savefig(directory+save_params["nameplate"]+'_'+model_name+'_'+'corner.png')
         fig_walkers.savefig(directory+save_params["nameplate"]+'_'+model_name+'_'+'walkers.png')
         fig_result.savefig(directory+save_params["nameplate"]+'_'+model_name+'_'+'result.png')
+        if 'samples' in what2save:
+            path_samples = directory+save_params["nameplate"]+'_'+model_name+'_'+'samples.dat'
+            np.savetxt(path_samples,self.samples,fmt="%10.5e")
 
 
 # List of models to represent glitches in different seismic indicators
@@ -1348,7 +1387,7 @@ def rr010_freqinvpoly_amp(x,args):
             args[4]*fit_params["freqref"]**2/x**2) * np.sin(4*np.pi*x*args[5]+args[6])
 
 def rr010_freqinvsq_amp_polyper(x,args):
-    """  Functional form to model ratios rr010. Sum of two  periodic signatures.
+    """  Functional form to model ratios rr010. Sum of two periodic signatures.
         Amplitude of the glitch signatures is prop to (1/freq**2)."""
     return args[0] + args[1]*(x-fit_params["beta"]) + \
             args[2]*(x-fit_params["gamma1"])*(x-fit_params["gamma2"]) +\
@@ -1359,7 +1398,7 @@ def rr010_freqinvsq_amp_polyper(x,args):
 # Update parameters in params.py
 
 def update_params(model,data):
-    """ """
+    """ Adapts parameters in params.py to suit the chosen GlitchModel. """
     # Update emcee_params to suit the chosen glitch model
     if model == d2nu_verma:
         emcee_params["ndim"] = 9
@@ -1580,8 +1619,8 @@ def lnprob_rr010_freqinvsq_amp_polyper(params,model,data,bds):
 # function based on the model selected
 
 def select_prob(model):
-    """Select the function that will be used to estimate the posterior
-        probability function based on the model selected """
+    """ Selects the function that will be used to estimate the posterior
+        probability function based on the model selected. """
     if model == d2nu_verma:
         return lnprob_d2nu_verma
     elif model == d2nu_mazumdar:
@@ -1605,7 +1644,7 @@ def select_prob(model):
 # Miscellaneous functions
 
 def f2solve_smooth_component(params,freq,inv_matcov):
-    """ Represent the equations to solve to determine beta, gamma1 and gamma2.
+    """ Represents the equations to solve to determine beta, gamma1 and gamma2.
         See Deheuvels et al. 2016, Eqs. B9-11. """
     beta, gamma1, gamma2 = params
     Jt = np.vstack((np.ones(len(freq)),freq-beta,(freq - gamma1)*(freq - gamma2)))

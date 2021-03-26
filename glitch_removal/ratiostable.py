@@ -8,13 +8,39 @@ prop_cycle = plt.rcParams['axes.prop_cycle']
 colors = prop_cycle.by_key()['color']
 
 class rr010Table(object):
-    """ Class to represent the ratios rr01/10 """
+    """ Class to represent the ratios rr01/10.
+
+    Attributes:
+        l (np.array): Angular degrees.
+        n (np.array): Radial orders.
+        freq (np.array): Mode frequencies.
+        rr010 (np.array): Frequency ratios rr010.
+        err (np.array): Errors on frequency ratios rr010.
+        matcov (np.array): Covariance matrix.
+        cut_table (rr010Table):
+            The initial dataset of rr010 but data points with large
+            uncertainties are excluded.
+        cut_range_table (rr010Table):
+            The initial dataset of rr010 but only data points in a given
+            frequency range are kept.
+        cond (float): Condition number of the covariance matrix.
+        inv_matcov (np.array): Inverse covariance matrix.
+    """
 
     def __init__(self):
-        """ Initialise an instance of rr010Table """
+        """ Initialises an instance of rr010Table. """
 
-    def create(self,l,n,freq,rr010,err,matcov):
-        """ """
+    def create(self, l, n, freq, rr010, err, matcov):
+        """ Creates an instance of rr010Table by directly passing the data.
+
+        Args:
+            l (np.array): Angular degrees.
+            n (np.array): Radial orders.
+            freq (np.array): Mode frequencies.
+            rr010 (np.array): Frequency ratios rr010.
+            err (np.array): Errors on frequency ratios rr010.
+            matcov (np.array): Covariance matrix.
+        """
         self.l = l
         self.n = n
         self.freq = freq
@@ -23,12 +49,25 @@ class rr010Table(object):
         self.matcov = matcov
 
     def load(self):
-        """ Load the ratios rr01/10 from a file """
+        """ Loads the ratios rr01/10 from a file.
+
+        Not implemented yet.
+        """
 
     # Methods for data handling
 
-    def cut(self,sigma):
-        """ Remove observational points using sigma-clipping """
+    def cut(self, sigma):
+        """ Removes observational points for which the rr010 uncertainty is
+        above sigma * median(err).
+
+        The resulting rr010Table object is stored in a new attribute called
+        'cut_table'.
+
+        Args:
+            sigma (float):
+                Defines the maximum tolerated rr010 uncertainty in cut_table
+                (i.e. sigma * median(err)).
+        """
         # clip data points with uncertainties above sigma * median uncertainty
         median_sigma = np.median(self.err)
         i_kept = np.argwhere(self.err <= sigma*median_sigma)[:,0]
@@ -45,8 +84,16 @@ class rr010Table(object):
         self.cut_table = rr010Table()
         self.cut_table.create(l_kept,n_kept,freq_kept,rr010_kept,err_kept,matcov_kept)
 
-    def cut_range(self,freqmin,freqmax):
-        """ Keep only data points between freqmin and freqmax """
+    def cut_range(self, freqmin, freqmax):
+        """ Keeps data points between freqmin and freqmax.
+
+        The resulting rr010Table object is stored in a new attribute called
+        'cut_range_table'.
+
+        Args:
+            freqmin (float): Minimum frequency.
+            freqmax (float): Maximum frequency.
+        """
         i_kept = np.argwhere((self.freq >= freqmin) & (self.freq <= freqmax))[:,0]
         l_kept, n_kept, freq_kept, rr010_kept, err_kept = \
                 self.l[i_kept], self.n[i_kept], self.freq[i_kept], \
@@ -65,12 +112,18 @@ class rr010Table(object):
     # Methods related to the covariance matrix
 
     def matcov_condnumber(self):
-        """ Get the condition number of self.matcov """
+        """ Gets the condition number of the covariance matrix. """
         self.cond = np.linalg.cond(self.matcov)
         print(f"Condition number is {self.cond}")
 
     def matcov_invert(self):
-        """ Invert the covariance matrix. """
+        """ Inverts the covariance matrix.
+
+        If fit_params["nsvd"] is different from -1, the inversion of the
+        covariance matrix is regularised using the truncated singular value
+        decomposition (SVD) method, fit_params["nsvd"] being the number of
+        singular values to keep.
+        """
         if fit_params["nsvd"] != -1:
             u,s,v = np.linalg.svd(self.matcov)
             self.inv_matcov = np.linalg.pinv(self.matcov,
@@ -82,7 +135,7 @@ class rr010Table(object):
     # Plotting methods
 
     def plot(self):
-        """ Plot the ratios rr010 """
+        """ Plots the ratios rr010. """
         plt.figure()
         plt.xlabel(r'Frequency ($\mu$Hz)')
         plt.ylabel(r'${\it {rr}_{010}}$')
@@ -96,14 +149,14 @@ class rr010Table(object):
         plt.show()
 
     def plot_matcov(self):
-        """ Plot the covariance matrix """
+        """ Plots the covariance matrix. """
         plt.figure()
         plt.imshow(self.matcov)
         cb = plt.colorbar()
         plt.show()
 
     def plot_matcov_svd(self):
-        """ Plot the singular values of self.matcov """
+        """ Plots the singular values of the covariance matrix. """
         u, s, v = np.linalg.svd(self.matcov)
         plt.figure()
         plt.plot(np.arange(1,len(s)+1),s,'o-')
@@ -114,13 +167,39 @@ class rr010Table(object):
 
 
 class r02Table(object):
-    """ Class to represent the ratios r02 """
+    """ Class to represent the ratios r02.
+
+    Attributes:
+        l (np.array): Angular degrees.
+        n (np.array): Radial orders.
+        freq (np.array): Mode frequencies.
+        r02 (np.array): Frequency ratios r02.
+        err (np.array): Errors on frequency ratios r02.
+        matcov (np.array): Covariance matrix.
+        cut_table (r02Table):
+            The initial dataset of r02 but data points with large uncertainties
+            are excluded.
+        cut_range_table (r02Table):
+            The initial dataset of r02 but only data points in a given frequency
+            range are kept.
+        cond (float): Condition number of the covariance matrix.
+        inv_matcov (np.array): Inverse covariance matrix.
+    """
 
     def __init__(self):
-        """ Initialise an instance of r02Table """
+        """ Initialises an instance of r02Table. """
 
-    def create(self,l,n,freq,r02,err,matcov):
-        """ """
+    def create(self, l, n, freq, r02, err, matcov):
+        """ Creates an instance of rr010Table by directly passing the data.
+
+        Args:
+            l (np.array): Angular degrees.
+            n (np.array): Radial orders.
+            freq (np.array): Mode frequencies.
+            rr010 (np.array): Frequency ratios r02.
+            err (np.array): Errors on frequency ratios r02.
+            matcov (np.array): Covariance matrix.
+        """
         self.l = l
         self.n = n
         self.freq = freq
@@ -129,12 +208,25 @@ class r02Table(object):
         self.matcov = matcov
 
     def load(self):
-        """ Load the ratios r02 from a file """
+        """ Loads the ratios r02 from a file.
+
+        Not implemented yet.
+        """
 
     # Methods for data handling
 
-    def cut(self,sigma):
-        """ Remove observational points using sigma-clipping """
+    def cut(self, sigma):
+        """ Removes observational points for which the r02 uncertainty is above
+        sigma * median(err).
+
+        The resulting r02Table object is stored in a new attribute called
+        'cut_table'.
+
+        Args:
+            sigma (float):
+                Defines the maximum tolerated r02 uncertainty in cut_table
+                (i.e. sigma * median(err)).
+        """
         median_sigma = np.median(self.err)
         i_kept = np.argwhere(self.err <= sigma*median_sigma)[:,0]
         l_kept, n_kept, freq_kept, r02_kept, err_kept = \
@@ -149,8 +241,16 @@ class r02Table(object):
         self.cut_table = r02Table()
         self.cut_table.create(l_kept,n_kept,freq_kept,r02_kept,err_kept,matcov_kept)
 
-    def cut_range(self,freqmin,freqmax):
-        """ Keep only data points between freqmin and freqmax """
+    def cut_range(self, freqmin, freqmax):
+        """ Keeps only data points between freqmin and freqmax.
+
+        The resulting r02Table object is stored in a new attribute called
+        'cut_range_table'.
+
+        Args:
+            freqmin (float): Minimum frequency.
+            freqmax (float): Maximum frequency.
+        """
         i_kept = np.argwhere((self.freq >= freqmin) & (self.freq <= freqmax))[:,0]
         l_kept, n_kept, freq_kept, r02_kept, err_kept = \
                 self.l[i_kept], self.n[i_kept], self.freq[i_kept], \
@@ -168,12 +268,18 @@ class r02Table(object):
     # Methods related to the covariance matrix
 
     def matcov_condnumber(self):
-        """ Get the condition number of self.matcov """
+        """ Gets the condition number of the covariance matrix. """
         self.cond = np.linalg.cond(self.matcov)
         print(f"Condition number is {self.cond}")
 
     def matcov_invert(self):
-        """ Invert the covariance matrix. """
+        """ Inverts the covariance matrix.
+
+        If fit_params["nsvd"] is different from -1, the inversion of the
+        covariance matrix is regularised using the truncated singular value
+        decomposition (SVD) method, fit_params["nsvd"] being the number of
+        singular values to keep.
+        """
         if fit_params["nsvd"] != -1:
             u,s,v = np.linalg.svd(self.matcov)
             self.inv_matcov = np.linalg.pinv(self.matcov,
@@ -184,7 +290,7 @@ class r02Table(object):
     # Plotting methods
 
     def plot(self):
-        """ Plot the ratios r02 """
+        """ Plots the ratios r02. """
         plt.figure()
         plt.xlabel(r'Frequency ($\mu$Hz)')
         plt.ylabel(r'${\it r_{02}}$')
@@ -193,7 +299,7 @@ class r02Table(object):
         plt.show()
 
     def plot_matcov_svd(self):
-        """ Plot the singular values of self.matcov """
+        """ Plots the singular values of the covariance matrix. """
         u, s, v = np.linalg.svd(self.matcov)
         plt.figure()
         plt.plot(np.arange(1,len(s)+1),s,'o-')
@@ -201,7 +307,7 @@ class r02Table(object):
 
 
     def plot_matcov(self):
-        """ Plot the covariance matrix """
+        """ Plots the covariance matrix. """
         plt.figure()
         plt.imshow(self.matcov)
         plt.xticks(ticks=np.arange(len(self.n)),labels=self.n.astype(int))

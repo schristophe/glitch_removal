@@ -9,13 +9,37 @@ from .ratiostable import *
 from .params import *
 
 class FreqTable(object):
-    """ Representing a table of frequencies """
+    """ Class to represent a table of frequencies.
+
+    Attributes:
+        l (np.array): Harmonic degrees.
+        n (np.array): Radial orders.
+        freq (np.array): Mode frequencies.
+        freqerr (np.array): Errors on frequencies.
+        d2nutable (D2nuTable):
+            Dataset containing the second differences d2nu computed directly
+            from the mode frequencies.
+        rr010table (rr010Table):
+            Dataset containing the ratios rr010 computed directly from the
+            mode frequencies.
+        r02table (r02Table):
+            Dataset containing the ratios r02 computed directly from the mode
+            frequencies.
+    """
 
     def __init__(self):
-        """ Initialise an instance of FreqTable """
+        """ Initialises an instance of FreqTable. """
 
     def load(self, path, coll=0, coln=1, colfreq=2, colerr=3):
-        """ Load frequency data from self.path """
+        """ Loads frequency data from a file.
+
+        Args:
+            path (str): Path to the file containing the frequency data.
+            coll (int): Column number of harmonic degrees.
+            coln (int): Column number of radial orders.
+            colfreq (int): Column number of mode frequencies.
+            colerr (int): Column number of frequency errors.
+        """
         datafreq = np.genfromtxt(path)
         self.l = datafreq[:,coll]
         self.n = datafreq[:,coln]
@@ -24,7 +48,7 @@ class FreqTable(object):
             self.freqerr = datafreq[:,colerr]
 
     def calc_d2nu(self):
-        """ Compute seconde differences from frequency data """
+        """ Computes seconde differences from frequency data. """
         # Get frequencies for each degree l
         f0 = self.freq[self.l == 0]
         f1 = self.freq[self.l == 1]
@@ -210,7 +234,7 @@ class FreqTable(object):
 
 
     def calc_ratios(self):
-        """ Compute ratios rr01/10 and r02 from frequency data """
+        """ Computes ratios rr01/10 and r02 from frequency data. """
         nb_draws = 1000 # nb of draws for estimating the cov. matrix
         # Get frequencies for each degree l
         f0 = self.freq[self.l == 0]
