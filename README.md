@@ -1,4 +1,5 @@
-# glitch_removal
+# glitch_removal (moved to Codeberg.org)
+
 **Fitting acoustic glitches in solar-like stars with `emcee`**
 
 Rapid variations of the stellar structure introduce an oscillatory component in the eigenmode frequencies of pulsating stars. Such features are called *glitches* in the asteroseismology community. The period and amplitude of the oscillatory component are related to the location and the shape of the glitch, respectively. `glitch_removal` fits the seismic signature of glitches in the pressure mode frequencies of solar-like stars (or combinations thereof).
